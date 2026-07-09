@@ -1,0 +1,156 @@
+---
+title: "Predicting Customer Conversion in Digital Marketing"
+subtitle: "Group Project Presentation"
+author: "Group 3: Yushan, Sora, Grace, Sandy, Jungmin"
+institute: "IBM 6540 - MSDM - Cal Poly Pomona"
+date: today
+
+format:
+  revealjs:
+    theme: serif
+    width: 1600
+    height: 900
+    footer: Predicting Customer Conversion in Digital Marketing
+    transition: slide
+    transition-speed: default
+    incremental: false
+    toc: true
+    toc-depth: 1
+    slide-number: true
+    scrollable: true
+    smaller: false
+    code-fold: false
+    code-overflow: wrap
+    number-sections: false
+    number-depth: 5
+    embed-resources: true
+    css: styles.css
+
+editor: visual
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: auto
+---
+
+# Table of Contents
+
+::: incremental
+-   Introduction
+-   Business Problem
+-   Analytics Objective
+-   Dataset
+-   Sample Characteristics
+-   Data Wrangling
+-   Analytics Methods
+-   Expected Business Value
+-   Timeline
+-   References
+:::
+
+------------------------------------------------------------------------
+
+# Introduction
+
+## Background
+
+*Briefly introduce the digital marketing problem.*
+
+------------------------------------------------------------------------
+
+# Business Problem
+
+## Problem Statement
+
+*Describe the business challenge.*
+
+------------------------------------------------------------------------
+
+# Analytics Objective
+
+## Objective
+
+*State the primary analytics objective.*
+
+------------------------------------------------------------------------
+
+# Dataset
+
+## Data Source
+
+Dataset: **Predict Conversion in Digital Marketing Dataset** -Kaggle (Rabie El Kharoua)
+
+## Key Variables
+
+Demographics
+
+Marketing
+
+Customer Engagement
+
+Purchase History
+
+------------------------------------------------------------------------
+
+# Sample Characteristics
+
+## Descriptive Statistics
+
+```{r}
+# Insert chart or table here
+```
+
+------------------------------------------------------------------------
+
+# Data Wrangling
+
+## Preprocessing Steps
+
+-   Handle missing values
+-   Remove duplicates
+-   Feature engineering
+-   Data transformation
+
+------------------------------------------------------------------------
+
+# Analytics Methods
+
+## 
+
+------------------------------------------------------------------------
+
+# Expected Business Value
+
+## Expected Outcomes
+
+-   Improve customer targeting
+-   Increase conversion rates
+-   Support marketing decisions
+
+------------------------------------------------------------------------
+
+# Timeline
+
+| Phase              | Status |
+|--------------------|--------|
+| Data Collection    |        |
+| Data Cleaning      |        |
+| Modeling           |        |
+| Evaluation         |        |
+| Final Presentation |        |
+
+------------------------------------------------------------------------
+
+# References
+
+-   Dataset source
+-   Research papers
+-   Course materials
+
+------------------------------------------------------------------------
+
+# Questions?
+
+Thank you!
