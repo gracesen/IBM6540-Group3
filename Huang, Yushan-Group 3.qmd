@@ -1,0 +1,47 @@
+---
+title: "Huang, Yushan - Group 3"
+author: "Yushan Huang"
+date: today
+format:
+  html:
+    toc: true
+    theme: cosmo
+---
+
+# Individual Participation Report
+
+## Student Information
+
+- **Name:** Yushan Huang
+- **Group:** Group 3
+
+## Introduction
+
+This document is my individual Quarto submission for Group 3. It demonstrates my participation in the group project and my ability to create and render a Quarto document.
+
+## My Contributions
+
+I participated in the Group 3 project by collaborating with my teammates through GitHub. My contributions included:
+
+- Editing the shared RevealJS presentation.
+- Committing and pushing changes to the GitHub repository.
+- Participating in group discussions.
+- Creating and uploading my individual Quarto document.
+
+## GitHub Collaboration
+
+Throughout this project, I used GitHub to collaborate with my teammates. I learned how to:
+
+- Clone a repository.
+- Create and edit Quarto documents.
+- Commit changes with meaningful messages.
+- Push updates to the shared repository.
+- Work with version control during a team project.
+
+## Reflection
+
+This project helped me improve my understanding of collaborative software development using GitHub and Quarto. Working with my teammates allowed me to gain experience with version control and collaborative document editing.
+
+## Conclusion
+
+I successfully completed my individual Quarto document and contributed to the Group 3 project presentation.
