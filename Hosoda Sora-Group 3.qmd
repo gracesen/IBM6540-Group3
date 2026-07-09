@@ -1,0 +1,28 @@
+---
+title: "Group 3 Individual Participation Report"
+author: "Sora Hosoda"
+date: today
+format: html
+---
+
+# Individual Participation Report
+
+## Group Information
+
+- **Group:** 3
+- **Project:** Predicting Customer Conversion in Digital Marketing
+- **Group Members:** Jungmin Woo, Sandy Zhu (Qian), Grace Sen, Sora Hosoda, Yushan Huang
+
+## My Contributions
+
+At this stage of the project, I contributed to both the project planning and the presentation development. My responsibilities included:
+
+- Contributed to the shared RevealJS presentation on GitHub.
+- Developed the **Prediction Plan** section of the presentation.
+- Prepared the **Expected Insights** section by identifying the expected outcomes of the analysis.
+- Participated in group discussions about the project direction and predictive modeling approach.
+- Reviewed the shared presentation and collaborated with teammates through GitHub.
+
+## Reflection
+
+Working on this project helped me understand how predictive analytics can be applied to digital marketing data. Collaborating through GitHub also gave me experience using version control in a team environment. As the project continues, I plan to contribute to model development, result interpretation, and the final presentation.
