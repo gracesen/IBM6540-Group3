@@ -12,7 +12,7 @@ format:
 
 ## Student Information
 
-- **Name:** Yushan Huang
+- **Name:** Yushan Huang, Jungmin Woo
 - **Group:** Group 3
 
 ## Introduction
