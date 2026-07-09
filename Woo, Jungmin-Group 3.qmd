@@ -1,0 +1,25 @@
+---
+title: "Jungmin Woo - Group 3 Individual Participation Report"
+author: "Jungmin Woo"
+date: today
+format: html
+---
+  
+  # Individual Participation Report
+  
+  ## Group Information
+  
+  -   **Group:** 3
+-   **Project:** Predicting Customer Conversion in Digital Marketing
+-   **Group Members:** Yushan, Sora, Grace, Sandy, Jungmin
+
+## My Contributions
+
+At this stage of the project, my contributions have mainly focused on planning and team coordination. My responsibilities include:
+  
+- Contributed ideas during team discussions and planning sessions.
+- Supported the process of selecting an appropriate dataset for the project.
+- Reminded and encouraged team members to finalize and choose the dataset on time.
+- Assisted with organizing the project structure and planning the presentation.
+
+## Reflection
