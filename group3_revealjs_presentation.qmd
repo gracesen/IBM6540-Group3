@@ -52,13 +52,13 @@ We use the dataset to study customer demographics, marketing channels, engagemen
 | Purchase history | `PreviousPurchases`, `LoyaltyPoints` |
 | Outcome | `Conversion` |
 
-## Conversion Outcome
+## Conversion Outcome (Jungmin Woo)
 
 ![](assets/conversion_count.png){fig-align="center" width="75%"}
 
 Overall conversion rate: **87.6%**
 
-## Campaign Channel Comparison
+## Campaign Channel Comparison (Jungmin Woo)
 
 ![](assets/channel_conversion.png){fig-align="center" width="80%"}
 
