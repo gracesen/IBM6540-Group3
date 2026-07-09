@@ -1,0 +1,28 @@
+---
+title: "Grace Sen - Group 3 Individual Participation Report"
+author: "Grace Sen"
+date: today
+format: html
+---
+
+# Individual Participation Report
+
+## Group Information
+
+-   **Group:** 3
+-   **Project:** Predicting Customer Conversion in Digital Marketing
+-   **Group Members:** Yushan, Sora, Grace, Sandy, Jungmin
+
+## My Contributions
+
+At this stage of the project, my contributions have mainly focused on planning and team coordination. My responsibilities include:
+
+- Created the GitHub repository for the group project.
+- Participated actively in group meetings and project discussions.
+- Helped evaluate and select the dataset.
+- Communicated with Professor on behalf of the group to clarify project requirements and answer questions.
+- Assisted with organizing the project structure and planning the presentation.
+
+## Reflection
+
+Since the project is still in its early stages, most of our work has focused on planning and preparation. I believe establishing a clear project structure and maintaining communication within the group are important first steps. As the project progresses, I plan to contribute to the data analysis, presentation development, and interpretation of the results.
