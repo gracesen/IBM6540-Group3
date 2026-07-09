@@ -64,13 +64,13 @@ Overall conversion rate: **87.6%**
 
 This chart compares conversion rate across marketing channels such as social media, email, referral, PPC, and SEO.
 
-## Campaign Type Comparison
+## Campaign Type Comparison (Grace Sen)
 
 ![](assets/type_conversion.png){fig-align="center" width="80%"}
 
 Campaign type can help explain which strategy is associated with stronger customer response.
 
-## Relationships with Conversion
+## Relationships with Conversion (Grace Sen)
 
 ![](assets/correlation_conversion.png){fig-align="center" width="80%"}
 
