@@ -1,0 +1,109 @@
+---
+title: "Predict Conversion in Digital Marketing Dataset"
+author: "Group 3"
+date: today
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    transition: fade
+    incremental: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Predict Conversion in Digital Marketing Dataset
+
+### Analyze and predict customer conversion in digital marketing
+
+**Group 3**  
+Digital Marketing Campaign Dataset
+
+::: notes
+This is the shared RevealJS presentation file for Group 3. All group members should edit and push this file to GitHub so their contribution appears in GitHub version control.
+:::
+
+## Project Goal
+
+Our project focuses on one main question:
+
+> Which customer and campaign factors are most useful for predicting whether a customer converts?
+
+We use the dataset to study customer demographics, marketing channels, engagement behavior, and campaign performance.
+
+## Dataset Overview(Yushan Huang)
+
+- **Rows:** 8,000 customer records
+- **Columns:** 20 variables
+- **Target variable:** `Conversion`
+- **Data type:** Synthetic digital marketing campaign data
+- **File location in repo:** `data/digital_marketing_campaign_dataset.csv`
+
+## Key Variables(Yushan Huang)
+
+| Category | Example Variables |
+|---|---|
+| Customer profile | `Age`, `Gender`, `Income` |
+| Campaign details | `CampaignChannel`, `CampaignType`, `AdSpend` |
+| Engagement behavior | `WebsiteVisits`, `PagesPerVisit`, `TimeOnSite` |
+| Email activity | `EmailOpens`, `EmailClicks` |
+| Purchase history | `PreviousPurchases`, `LoyaltyPoints` |
+| Outcome | `Conversion` |
+
+## Conversion Outcome
+
+![](assets/conversion_count.png){fig-align="center" width="75%"}
+
+Overall conversion rate: **87.6%**
+
+## Campaign Channel Comparison
+
+![](assets/channel_conversion.png){fig-align="center" width="80%"}
+
+This chart compares conversion rate across marketing channels such as social media, email, referral, PPC, and SEO.
+
+## Campaign Type Comparison
+
+![](assets/type_conversion.png){fig-align="center" width="80%"}
+
+Campaign type can help explain which strategy is associated with stronger customer response.
+
+## Relationships with Conversion
+
+![](assets/correlation_conversion.png){fig-align="center" width="80%"}
+
+The strongest numerical relationships can guide feature selection for a prediction model.
+
+## Prediction Plan
+
+1. Clean and inspect the dataset
+2. Explore conversion patterns by customer and campaign variables
+3. Split data into training and testing sets
+4. Build a classification model to predict `Conversion`
+5. Evaluate performance using accuracy, precision, recall, and confusion matrix
+
+## Expected Insights
+
+By analyzing this dataset, we expect to identify:
+
+- Which customer groups are more likely to convert
+- Which campaign channels perform better
+- How engagement metrics relate to conversion
+- Which variables are useful for prediction
+
+## GitHub Collaboration
+
+For the group submission, our repository should include:
+
+- `data/` folder with the dataset
+- Shared RevealJS presentation `.qmd` and `.html`
+- Individual `.qmd` and `.html` files for each group member
+- GitHub commit history showing each member's contribution
+
+## Conclusion
+
+This project uses digital marketing data to understand and predict customer conversion. The final presentation should combine exploratory analysis, visual evidence, and predictive modeling results.
+
+**Next step:** Each member should edit this shared presentation file and push their changes to GitHub.
