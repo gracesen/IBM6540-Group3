@@ -76,7 +76,7 @@ Campaign type can help explain which strategy is associated with stronger custom
 
 The strongest numerical relationships can guide feature selection for a prediction model.
 
-## Prediction Plan
+## Prediction Plan(Sora Hosoda)
 
 1. Clean and inspect the dataset
 2. Explore conversion patterns by customer and campaign variables
@@ -84,7 +84,7 @@ The strongest numerical relationships can guide feature selection for a predicti
 4. Build a classification model to predict `Conversion`
 5. Evaluate performance using accuracy, precision, recall, and confusion matrix
 
-## Expected Insights
+## Expected Insights(Sora Hosoda)
 
 By analyzing this dataset, we expect to identify:
 
