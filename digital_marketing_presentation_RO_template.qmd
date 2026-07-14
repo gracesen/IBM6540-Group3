@@ -54,18 +54,40 @@ We use the dataset to study customer demographics, marketing channels, engagemen
 
 ---
 
-## RO1 — ABCDE {.smaller}
+## RO1 — Marketing Channels and Campaign Types {.smaller}
 
 **(Yushan Huang)**
 
-**Research Objective:** ABCDE
+**Research Objective:**  
+To analyze how different marketing channels and campaign types affect customer conversion.
 
-- **IV:** `ABCDE`
-- **DV:** `Conversion`
+**Independent Variables (IVs):**
 
-**Wrangling Plan:** ABCDE
+- `CampaignChannel`
+- `CampaignType`
 
-**Visualization Plan:** ABCDE
+**Dependent Variable (DV):**
+
+- `Conversion`
+
+---
+
+## RO1 — Wrangling and Visualization Plan {.smaller}
+
+**(Yushan Huang)**
+
+**Plan for Data Wrangling:**
+
+- Check missing or inconsistent values in `CampaignChannel` and `CampaignType`.
+- Convert `CampaignChannel`, `CampaignType`, and `Conversion` into categorical variables.
+- Group records by channel and campaign type.
+- Calculate conversion rates for each channel and campaign type.
+
+**Plan for Data Visualization:**
+
+- Bar chart of conversion rate by marketing channel.
+- Grouped bar chart comparing campaign types across channels.
+- Heatmap showing conversion rate by channel and campaign type.
 
 ---
 
