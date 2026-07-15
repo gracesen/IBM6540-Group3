@@ -6,8 +6,8 @@
 <script src="digital_marketing_presentation_RO_template_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="digital_marketing_presentation_RO_template_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="digital_marketing_presentation_RO_template_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="digital_marketing_presentation_RO_template_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.8.26">
+<link href="digital_marketing_presentation_RO_template_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Group 3">
   <meta name="dcterms.date" content="2026-07-14">
@@ -18,6 +18,9 @@
   <link rel="stylesheet" href="digital_marketing_presentation_RO_template_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="digital_marketing_presentation_RO_template_files/libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -30,7 +33,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="digital_marketing_presentation_RO_template_files/libs/revealjs/dist/theme/quarto-fd8983d39d20143ab16ea7c8339d2b73.css">
+  <link rel="stylesheet" href="digital_marketing_presentation_RO_template_files/libs/revealjs/dist/theme/quarto-e96098760268cd8231e5d656eafbc2c7.css">
   <link href="digital_marketing_presentation_RO_template_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="digital_marketing_presentation_RO_template_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="digital_marketing_presentation_RO_template_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -213,60 +216,104 @@ Group 3
 </tbody>
 </table>
 </section>
-<section id="ro1-abcde" class="slide level2 smaller">
-<h2>RO1 — ABCDE</h2>
+<section id="ro1-marketing-channels-and-campaign-types" class="slide level2 smaller">
+<h2>RO1 — Marketing Channels and Campaign Types</h2>
 <p><strong>(Yushan Huang)</strong></p>
-<p><strong>Research Objective:</strong> ABCDE</p>
+<p><strong>Research Objective:</strong><br>
+To analyze how different marketing channels and campaign types affect customer conversion.</p>
+<p><strong>Independent Variables (IVs):</strong></p>
 <ul>
-<li class="fragment"><strong>IV:</strong> <code>ABCDE</code></li>
-<li class="fragment"><strong>DV:</strong> <code>Conversion</code></li>
+<li class="fragment"><code>CampaignChannel</code></li>
+<li class="fragment"><code>CampaignType</code></li>
 </ul>
-<p><strong>Wrangling Plan:</strong> ABCDE</p>
-<p><strong>Visualization Plan:</strong> ABCDE</p>
+<p><strong>Dependent Variable (DV):</strong></p>
+<ul>
+<li class="fragment"><code>Conversion</code></li>
+</ul>
 </section>
-<section id="ro2-abcde" class="slide level2 smaller">
-<h2>RO2 — ABCDE</h2>
+<section id="ro1-wrangling-and-visualization-plan" class="slide level2 smaller">
+<h2>RO1 — Wrangling and Visualization Plan</h2>
+<p><strong>(Yushan Huang)</strong></p>
+<p><strong>Plan for Data Wrangling:</strong></p>
+<ul>
+<li class="fragment">Check missing or inconsistent values in <code>CampaignChannel</code> and <code>CampaignType</code>.</li>
+<li class="fragment">Convert <code>CampaignChannel</code>, <code>CampaignType</code>, and <code>Conversion</code> into categorical variables.</li>
+<li class="fragment">Group records by channel and campaign type.</li>
+<li class="fragment">Calculate conversion rates for each channel and campaign type.</li>
+</ul>
+<p><strong>Plan for Data Visualization:</strong></p>
+<ul>
+<li class="fragment">Bar chart of conversion rate by marketing channel.</li>
+<li class="fragment">Grouped bar chart comparing campaign types across channels.</li>
+<li class="fragment">Heatmap showing conversion rate by channel and campaign type.</li>
+</ul>
+</section>
+<section id="ro2-campaign-performance" class="slide level2 smaller">
+<h2>RO2 — Campaign Performance</h2>
 <p><strong>(Jungmin Woo)</strong></p>
-<p><strong>Research Objective:</strong> ABCDE</p>
+<p><strong>Research Objective:</strong> Analyze the impact of marketing channels and campaign types on customer conversion.</p>
 <ul>
-<li class="fragment"><strong>IV:</strong> <code>CampaignChannel</code></li>
-<li class="fragment"><strong>DV:</strong> <code>Conversion</code></li>
+<li class="fragment"><strong>IV:</strong> <code>CampaignChannel</code>, <code>CampaignType</code> (Categorical)</li>
+<li class="fragment"><strong>DV:</strong> <code>Conversion</code> (Binary)</li>
 </ul>
-<p><strong>Wrangling Plan:</strong> ABCDE</p>
-<p><strong>Visualization Plan:</strong> ABCDE</p>
+<p><strong>Wrangling Plan:</strong> - Group by channel and campaign type to calculate baseline conversion rates. - Clean and check for any missing values in relevant columns.</p>
+<p><strong>Visualization Plan:</strong> - A <strong>Grouped Bar Chart</strong> showing conversion rates (y-axis) across channels (x-axis), segmented by campaign type.</p>
 </section>
-<section id="ro3-abcde" class="slide level2 smaller">
-<h2>RO3 — ABCDE</h2>
+<section id="ro3-customer-demographics" class="slide level2 smaller">
+<h2>RO3 — Customer Demographics</h2>
 <p><strong>(Grace Sen)</strong></p>
-<p><strong>Research Objective:</strong> ABCDE</p>
+<p><strong>Research Objective:</strong> Examine whether customer demographic characteristics, including age, gender, and income, are associated with customer conversion.</p>
 <ul>
-<li class="fragment"><strong>IV:</strong> <code>CampaignType</code></li>
+<li class="fragment"><strong>IV:</strong> <code>Age</code>, <code>Gender</code>, <code>Income</code></li>
 <li class="fragment"><strong>DV:</strong> <code>Conversion</code></li>
 </ul>
-<p><strong>Wrangling Plan:</strong> ABCDE</p>
-<p><strong>Visualization Plan:</strong> ABCDE</p>
+<p><strong>Wrangling Plan:</strong> - Check for missing values. - Convert <code>Gender</code> to a factor. - Standardize <code>Income</code> if needed.</p>
+<p><strong>Visualization Plan:</strong> - Boxplot of income by conversion. - Bar chart of conversion by gender. - Histogram of age.</p>
 </section>
-<section id="ro4-abcde" class="slide level2 smaller">
-<h2>RO4 — ABCDE</h2>
-<p><strong>(Sora Hosoda)</strong></p>
-<p><strong>Research Objective:</strong> ABCDE</p>
-<ul>
-<li class="fragment"><strong>IV:</strong> <code>ABCDE</code></li>
-<li class="fragment"><strong>DV:</strong> <code>Conversion</code></li>
-</ul>
-<p><strong>Wrangling Plan:</strong> ABCDE</p>
-<p><strong>Visualization Plan:</strong> ABCDE</p>
-</section>
-<section id="ro5-abcde" class="slide level2 smaller">
-<h2>RO5 — ABCDE</h2>
+<section id="ro4-customer-interaction-and-purchase-behavior" class="slide level2 smaller">
+<h2>RO4 — Customer Interaction and Purchase Behavior</h2>
 <p><strong>(Sandy)</strong></p>
-<p><strong>Research Objective:</strong> ABCDE</p>
+<p><strong>Research Objective:</strong> To evaluate the impact of customer interaction and previous purchasing behavior on customer conversion</p>
 <ul>
-<li class="fragment"><strong>IV:</strong> <code>PreviousPurchases</code>, <code>LoyaltyPoints</code></li>
+<li class="fragment"><strong>IV:</strong> <code>EmailOpens</code>,<code>EailClicks</code>,<code>PreviousPurchases</code></li>
 <li class="fragment"><strong>DV:</strong> <code>Conversion</code></li>
 </ul>
-<p><strong>Wrangling Plan:</strong> ABCDE</p>
+<p><strong>Wrangling Plan:</strong> A: Check for missing or inconsistent value in<code>EmailOpens</code>,<code>EailClicks</code>,<code>PreviousPurchases</code>. B: Conver <code>Conversion</code> into a categorical variable. C: Create a Click-Through Rate CTR variable from <code>EailClicks</code> and <code>EmailOpens</code>. D: Examine the distribution of customer interaction and purchase behavior variables. E: Identify and handle potentional outliers.</p>
 <p><strong>Visualization Plan:</strong> ABCDE</p>
+</section>
+<section id="ro5-customer-loyalty-and-purchase-history" class="slide level2 smaller">
+<h2>RO5 — Customer Loyalty and Purchase History</h2>
+<p><strong>(Sora Hosoda)</strong></p>
+<p><strong>Research Objective:</strong></p>
+<p>To examine whether customer loyalty and previous purchase behavior influence the likelihood of customer conversion.</p>
+<p><strong>Independent Variables (IVs):</strong></p>
+<ul>
+<li class="fragment"><code>PreviousPurchases</code></li>
+<li class="fragment"><code>LoyaltyPoints</code></li>
+</ul>
+<p><strong>Dependent Variable (DV):</strong></p>
+<ul>
+<li class="fragment"><code>Conversion</code></li>
+</ul>
+</section>
+<section id="ro5-wrangling-and-visualization-plan" class="slide level2 smaller">
+<h2>RO5 — Wrangling and Visualization Plan</h2>
+<p><strong>(Sora Hosoda)</strong></p>
+<p><strong>Plan for Data Wrangling:</strong></p>
+<ul>
+<li class="fragment">Check for missing values in <code>PreviousPurchases</code>, <code>LoyaltyPoints</code>, and <code>Conversion</code>.</li>
+<li class="fragment">Convert <code>Conversion</code> into a categorical variable.</li>
+<li class="fragment">Check for duplicate records and remove them if necessary.</li>
+<li class="fragment">Examine the distribution of <code>PreviousPurchases</code> and <code>LoyaltyPoints</code>.</li>
+<li class="fragment">Identify and handle potential outliers.</li>
+</ul>
+<p><strong>Plan for Data Visualization:</strong></p>
+<ul>
+<li class="fragment">Boxplot of <code>LoyaltyPoints</code> by conversion status.</li>
+<li class="fragment">Boxplot of <code>PreviousPurchases</code> by conversion status.</li>
+<li class="fragment">Scatterplot showing the relationship between <code>PreviousPurchases</code> and <code>LoyaltyPoints</code>.</li>
+<li class="fragment"><h2 id="correlation-heatmap-including-loyalty-purchase-history-and-conversion.">Correlation heatmap including loyalty, purchase history, and conversion.</h2></li>
+</ul>
 </section>
 <section id="prediction-plan" class="slide level2">
 <h2>Prediction Plan</h2>
