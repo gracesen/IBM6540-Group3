@@ -140,17 +140,17 @@ To analyze how different marketing channels and campaign types affect customer c
 - **DV:** `Conversion`
 
 **Wrangling Plan:** 
-A: Check for missing or inconsistent value in`EmailOpens`,`EailClicks`,`PreviousPurchases`.
-B: Conver `Conversion` into a categorical variable.
-C: Create a Click-Through Rate CTR variable from `EailClicks` and `EmailOpens`.
-D: Examine the distribution of customer interaction and purchase behavior variables.
-E: Identify and handle potentional outliers.
+- Check for missing or inconsistent value in`EmailOpens`,`EailClicks`,`PreviousPurchases`.
+- Conver `Conversion` into a categorical variable.
+- Create a Click-Through Rate CTR variable from `EailClicks` and `EmailOpens`.
+- Examine the distribution of customer interaction and purchase behavior variables.
+- Identify and handle potentional outliers.
 
 **Visualization Plan:** 
-Boxplot comparing Email Opens between converted and non-converted customers.
-Boxplot comparing Email Clicks (or CTR) between converted and non-converted customers.
-Boxplot comparing Previous Purchases between converted and non-converted customers.
-Correlation heatmap showing relationships among customer interaction variables and conversion.
+- Boxplot comparing Email Opens between converted and non-converted customers.
+- Boxplot comparing Email Clicks (or CTR) between converted and non-converted customers.
+- Boxplot comparing Previous Purchases between converted and non-converted customers.
+- Correlation heatmap showing relationships among customer interaction variables and conversion.
 
 ---
 
