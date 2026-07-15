@@ -146,7 +146,11 @@ C: Create a Click-Through Rate CTR variable from `EailClicks` and `EmailOpens`.
 D: Examine the distribution of customer interaction and purchase behavior variables.
 E: Identify and handle potentional outliers.
 
-**Visualization Plan:** ABCDE
+**Visualization Plan:** 
+Boxplot comparing Email Opens between converted and non-converted customers.
+Boxplot comparing Email Clicks (or CTR) between converted and non-converted customers.
+Boxplot comparing Previous Purchases between converted and non-converted customers.
+Correlation heatmap showing relationships among customer interaction variables and conversion.
 
 ---
 
