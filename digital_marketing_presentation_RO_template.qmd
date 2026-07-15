@@ -141,6 +141,8 @@ To evaluate the impact of customer interaction and previous purchasing behavior 
 - **IV:** `EmailOpens`, `EmailClicks`, `PreviousPurchases`
 - **DV:** `Conversion`
 
+---
+
 ### Wrangling Plan
 
 - Check for missing or inconsistent values in `EmailOpens`, `EmailClicks`, and `PreviousPurchases`.
