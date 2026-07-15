@@ -121,16 +121,21 @@ To analyze how different marketing channels and campaign types affect customer c
 
 ---
 
-## RO4 — ABCDE {.smaller}
+## RO4 — Customer Interaction and Purchase Behavior {.smaller}
 
-**(Sora Hosoda)**
+**(Sandy)**
 
-**Research Objective:** ABCDE
+**Research Objective:** To evaluate the impact of customer interaction and previous purchasing behavior on customer conversion
 
-- **IV:** `ABCDE`
+- **IV:** `EmailOpens`,`EailClicks`,`PreviousPurchases`
 - **DV:** `Conversion`
 
-**Wrangling Plan:** ABCDE
+**Wrangling Plan:** 
+A: Check for missing or inconsistent value in`EmailOpens`,`EailClicks`,`PreviousPurchases`.
+B: Conver `Conversion` into a categorical variable.
+C: Create a Click-Through Rate CTR variable from `EailClicks` and `EmailOpens`.
+D: Examine the distribution of customer interaction and purchase behavior variables.
+E: Identify and handle potentional outliers.
 
 **Visualization Plan:** ABCDE
 
@@ -138,20 +143,15 @@ To analyze how different marketing channels and campaign types affect customer c
 
 ## RO5 — Customer Loyalty and Purchase History {.smaller}
 
-**(Sandy)**
+**(Sora)**
 
-**Research Objective:** To investigate wheather customer loyalty and previous purchasing behavior influence customer conversion. 
+**Research Objective:** 
 
 - **IV:** `PreviousPurchases`, `LoyaltyPoints`
 - **DV:** `Conversion`
 
 **Wrangling Plan:** 
-Check for missiong or inconsistent values in `PreviousPurchases` and `LoyaltyPoints`.
-Convert `Conversion` into categorical variable.
-Examine the distribution of `PreviousPurchases` and `LoyaltyPoints`.
-Identify and handle potential outliers.
-Create grouped categories such as medium / hight for `LoyaltyPoints` and `PreviousPurchases`.
-Calculate conversion rates across different customer loyalty and purchase history group. 
+
 
 **Visualization Plan:** ABCDE
 
