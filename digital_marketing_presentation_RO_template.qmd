@@ -130,29 +130,31 @@ To analyze how different marketing channels and campaign types affect customer c
 
 ---
 
+
 ## RO4 — Customer Interaction and Purchase Behavior {.smaller}
 
 **(Sandy)**
 
-**Research Objective:** To evaluate the impact of customer interaction and previous purchasing behavior on customer conversion
+**Research Objective:**  
+To evaluate the impact of customer interaction and previous purchasing behavior on customer conversion.
 
-- **IV:** `EmailOpens`,`EailClicks`,`PreviousPurchases`
+- **IV:** `EmailOpens`, `EmailClicks`, `PreviousPurchases`
 - **DV:** `Conversion`
 
-**Wrangling Plan:** 
-- Check for missing or inconsistent value in`EmailOpens`,`EailClicks`,`PreviousPurchases`.
-- Conver `Conversion` into a categorical variable.
-- Create a Click-Through Rate CTR variable from `EailClicks` and `EmailOpens`.
+### Wrangling Plan
+
+- Check for missing or inconsistent values in `EmailOpens`, `EmailClicks`, and `PreviousPurchases`.
+- Convert `Conversion` into a categorical variable.
+- Create a Click-Through Rate (CTR) variable from `EmailClicks` and `EmailOpens` if appropriate.
 - Examine the distribution of customer interaction and purchase behavior variables.
-- Identify and handle potentional outliers.
+- Identify and handle potential outliers.
 
-**Visualization Plan:** 
-- Boxplot comparing Email Opens between converted and non-converted customers.
-- Boxplot comparing Email Clicks (or CTR) between converted and non-converted customers.
-- Boxplot comparing Previous Purchases between converted and non-converted customers.
+### Visualization Plan
+
+- Boxplot comparing `EmailOpens` between converted and non-converted customers.
+- Boxplot comparing `EmailClicks` (or CTR) between converted and non-converted customers.
+- Boxplot comparing `PreviousPurchases` between converted and non-converted customers.
 - Correlation heatmap showing relationships among customer interaction variables and conversion.
-
----
 
 ## RO5 — Customer Loyalty and Purchase History {.smaller}
 
