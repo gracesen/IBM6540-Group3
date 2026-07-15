@@ -91,18 +91,21 @@ To analyze how different marketing channels and campaign types affect customer c
 
 ---
 
-## RO2 — ABCDE {.smaller}
+## RO2 — Campaign Performance {.smaller}
 
 **(Jungmin Woo)**
 
-**Research Objective:** ABCDE
+**Research Objective:** Analyze the impact of marketing channels and campaign types on customer conversion.
 
-- **IV:** `CampaignChannel`
-- **DV:** `Conversion`
+- **IV:** `CampaignChannel`, `CampaignType` (Categorical)
+- **DV:** `Conversion` (Binary)
 
-**Wrangling Plan:** ABCDE
+**Wrangling Plan:** 
+- Group by channel and campaign type to calculate baseline conversion rates.
+- Clean and check for any missing values in relevant columns.
 
-**Visualization Plan:** ABCDE
+**Visualization Plan:** 
+- A **Grouped Bar Chart** showing conversion rates (y-axis) across channels (x-axis), segmented by campaign type.
 
 ---
 
