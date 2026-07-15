@@ -106,18 +106,24 @@ To analyze how different marketing channels and campaign types affect customer c
 
 ---
 
-## RO3 — ABCDE {.smaller}
+## RO3 — Customer Demographics {.smaller}
 
 **(Grace Sen)**
 
-**Research Objective:** ABCDE
+**Research Objective:** Examine whether customer demographic characteristics, including age, gender, and income, are associated with customer conversion.
 
-- **IV:** `CampaignType`
+- **IV:** `Age`, `Gender`, `Income`
 - **DV:** `Conversion`
 
-**Wrangling Plan:** ABCDE
+**Wrangling Plan:**
+- Check for missing values.
+- Convert `Gender` to a factor.
+- Standardize `Income` if needed.
 
-**Visualization Plan:** ABCDE
+**Visualization Plan:**
+- Boxplot of income by conversion.
+- Bar chart of conversion by gender.
+- Histogram of age.
 
 ---
 
