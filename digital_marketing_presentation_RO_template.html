@@ -279,7 +279,7 @@ To analyze how different marketing channels and campaign types affect customer c
 <li class="fragment"><strong>DV:</strong> <code>Conversion</code></li>
 </ul>
 <p><strong>Wrangling Plan:</strong> A: Check for missing or inconsistent value in<code>EmailOpens</code>,<code>EailClicks</code>,<code>PreviousPurchases</code>. B: Conver <code>Conversion</code> into a categorical variable. C: Create a Click-Through Rate CTR variable from <code>EailClicks</code> and <code>EmailOpens</code>. D: Examine the distribution of customer interaction and purchase behavior variables. E: Identify and handle potentional outliers.</p>
-<p><strong>Visualization Plan:</strong> ABCDE</p>
+<p><strong>Visualization Plan:</strong> Boxplot comparing Email Opens between converted and non-converted customers. Boxplot comparing Email Clicks (or CTR) between converted and non-converted customers. Boxplot comparing Previous Purchases between converted and non-converted customers. Correlation heatmap showing relationships among customer interaction variables and conversion.</p>
 </section>
 <section id="ro5-customer-loyalty-and-purchase-history" class="slide level2 smaller">
 <h2>RO5 — Customer Loyalty and Purchase History</h2>
@@ -296,23 +296,22 @@ To analyze how different marketing channels and campaign types affect customer c
 <li class="fragment"><code>Conversion</code></li>
 </ul>
 </section>
-<section id="ro5-wrangling-and-visualization-plan" class="slide level2 smaller">
-<h2>RO5 — Wrangling and Visualization Plan</h2>
+<section id="ro5-wrangling-visualization" class="slide level2 smaller">
+<h2>RO5 — Wrangling &amp; Visualization</h2>
 <p><strong>(Sora Hosoda)</strong></p>
-<p><strong>Plan for Data Wrangling:</strong></p>
+<p><strong>Wrangling Plan:</strong></p>
 <ul>
-<li class="fragment">Check for missing values in <code>PreviousPurchases</code>, <code>LoyaltyPoints</code>, and <code>Conversion</code>.</li>
+<li class="fragment">Check missing values in <code>PreviousPurchases</code>, <code>LoyaltyPoints</code>, and <code>Conversion</code>.</li>
 <li class="fragment">Convert <code>Conversion</code> into a categorical variable.</li>
-<li class="fragment">Check for duplicate records and remove them if necessary.</li>
-<li class="fragment">Examine the distribution of <code>PreviousPurchases</code> and <code>LoyaltyPoints</code>.</li>
-<li class="fragment">Identify and handle potential outliers.</li>
+<li class="fragment">Check duplicate records.</li>
+<li class="fragment">Examine distributions and potential outliers.</li>
 </ul>
-<p><strong>Plan for Data Visualization:</strong></p>
+<p><strong>Visualization Plan:</strong></p>
 <ul>
 <li class="fragment">Boxplot of <code>LoyaltyPoints</code> by conversion status.</li>
 <li class="fragment">Boxplot of <code>PreviousPurchases</code> by conversion status.</li>
-<li class="fragment">Scatterplot showing the relationship between <code>PreviousPurchases</code> and <code>LoyaltyPoints</code>.</li>
-<li class="fragment"><h2 id="correlation-heatmap-including-loyalty-purchase-history-and-conversion.">Correlation heatmap including loyalty, purchase history, and conversion.</h2></li>
+<li class="fragment">Scatterplot of <code>PreviousPurchases</code> and <code>LoyaltyPoints</code>.</li>
+<li class="fragment">Correlation heatmap of key variables(loyalty, purchase history, and conversion).</li>
 </ul>
 </section>
 <section id="prediction-plan" class="slide level2">

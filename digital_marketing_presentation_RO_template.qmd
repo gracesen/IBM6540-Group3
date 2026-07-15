@@ -173,25 +173,23 @@ To examine whether customer loyalty and previous purchase behavior influence the
 
 ---
 
-## RO5 — Wrangling and Visualization Plan {.smaller}
+## RO5 — Wrangling & Visualization {.smaller}
 
 **(Sora Hosoda)**
 
-**Plan for Data Wrangling:**
+**Wrangling Plan:**
 
-- Check for missing values in `PreviousPurchases`, `LoyaltyPoints`, and `Conversion`.
+- Check missing values in `PreviousPurchases`, `LoyaltyPoints`, and `Conversion`.
 - Convert `Conversion` into a categorical variable.
-- Check for duplicate records and remove them if necessary.
-- Examine the distribution of `PreviousPurchases` and `LoyaltyPoints`.
-- Identify and handle potential outliers.
+- Check duplicate records.
+- Examine distributions and potential outliers.
 
-**Plan for Data Visualization:**
+**Visualization Plan:**
 
 - Boxplot of `LoyaltyPoints` by conversion status.
 - Boxplot of `PreviousPurchases` by conversion status.
-- Scatterplot showing the relationship between `PreviousPurchases` and `LoyaltyPoints`.
-- Correlation heatmap including loyalty, purchase history, and conversion.
----
+- Scatterplot of `PreviousPurchases` and `LoyaltyPoints`.
+- Correlation heatmap of key variables(loyalty, purchase history, and conversion).
 
 ## Prediction Plan
 
