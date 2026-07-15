@@ -4,7 +4,7 @@ author: "Group 3"
 date: today
 format:
   revealjs:
-    theme: [default, cpp.scss]   # <-- CPP custom theme file goes here (see note below)
+    theme: theme.scss
     slide-number: true
     transition: fade
     incremental: true
