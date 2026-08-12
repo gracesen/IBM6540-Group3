@@ -1402,46 +1402,47 @@ The overall conclusion is that demographics alone do not meaningfully distinguis
 <!-- AO4 —  Customer Interaction, Purchase Behavior, and Conversion                           -->
 <!-- =================================================================== -->
 
+
 # Analytics Objective 4 — *Sandy Zhu*
 
- **RO4:** To evaluate how customer interaction and previous purchasing behavior are associated with customer conversion and broader marketing outcomes, and to identify the most important behavioral drivers for predicting customer response.
+## AO4: Customer Interaction, Purchase Behavior, and Conversion
+
+RO4: How do email engagement (EmailOpens and EmailClicks) and previous purchases affect customer conversion, and which factor is the most important for predicting conversion?
 
 - **Target variables:** `ConversionRate`, `Conversion` (No / Yes)
 - **Independent variables:** `EmailOpens`, `EmailClicks`, `PreviousPurchases`
 - **Problem type:** Regression and binary classification
-- **Business question:** How are customer email engagement and previous purchasing behavior related to marketing response, and how useful are these behaviors for predicting customer conversion?
-- **Analytical focus:** Examine behavioral relationships with conversion outcomes, compare predictive models, and identify the most important behavioral drivers.
+
+---
+
+- **Business question:** How do email engagement and previous purchases relate to customer conversion?
+- **Analytical focus:** Compare models and identify which customer behavior is most important for predicting conversion.
 
 ## AO4: Machine Learning Methods to be Used
 
-::: {.panel-tabset}
+### Regression-Focused Method
 
-### Regression-Focused Methods
+- **Linear Regression** — predicts `ConversionRate` as a continuous marketing outcome.
 
-- Linear Regression — evaluates whether `EmailOpens`, `EmailClicks`, and `PreviousPurchases` explain variation in `ConversionRate`.
-- Model performance is evaluated using RMSE, MAE, and R-squared.
+### Classification-Focused Method
 
-### Classification-Focused Methods
+- **Logistic Regression** — predicts whether a customer converts (`Yes` / `No`).
 
-- Logistic Regression — interpretable baseline model for predicting customer `Conversion`.
-- Performance is evaluated using confusion matrix, sensitivity, specificity, accuracy, and ROC AUC.
+---
+
+### Ensemble Method
+
+- **Random Forest** — captures nonlinear patterns and identifies important behavioral predictors.
 
 
-### Ensembles
-- Random Forest — evaluates whether nonlinear relationships and interactions improve conversion prediction.
-- Variable importance, PDP, and SHAP are used to interpret the most important behavioral drivers.
-
-:::
-
-## AO4:Customer Engagement, Purchase Behavior, and Marketing Outcomes
-
+## AO4: Data Wrangling & Visualization
 ```{r}
 #| label: ao4-wrangle
 #| fig-width: 10
 #| fig-height: 4.5
 
 # Keep only variables required by RO4
-ao4_data <- raw_data |>
+ao4_data <- marketing |>
   select(
     EmailOpens,
     EmailClicks,
@@ -1457,6 +1458,7 @@ ao4_data <- raw_data |>
       labels = c("No", "Yes")
     )
   )
+
 # Summary statistics by conversion status
 ao4_summary <- ao4_data |>
   group_by(Conversion) |>
@@ -1467,6 +1469,7 @@ ao4_summary <- ao4_data |>
     mean_purchases = mean(PreviousPurchases),
     .groups = "drop"
   )
+
 # Conversion distribution
 ao4_conversion <- ao4_data |>
   count(Conversion) |>
@@ -1493,6 +1496,7 @@ p_ao4_conversion <- ggplot(
     x = "Conversion Status",
     y = "Percentage of Customers"
   )
+
 # Behavioral comparison by conversion status
 ao4_long <- ao4_data |>
   select(Conversion, EmailOpens, EmailClicks, PreviousPurchases) |>
@@ -1520,14 +1524,13 @@ patchwork::wrap_plots(
   ncol = 2
 )
 ```
-
 - The dataset contains **8,000 customers**, with no missing values in the variables used for RO4.
 - Approximately **87.7%** of customers converted, indicating substantial class imbalance in the binary outcome.
 - Customers who converted generally show higher `EmailOpens`, `EmailClicks`, and `PreviousPurchases` than non-converters.
 - These descriptive patterns suggest that customer interaction and prior purchasing behavior may contain useful information for predicting conversion.
 
-## AO4: Customer Behavior × Conversion Pattern
 
+## AO4: Customer Behavior × Conversion Pattern
 ```{r}
 #| label: ao4-behavior-pattern
 #| fig-width: 10
@@ -1557,9 +1560,11 @@ ggplot(ao4_behavior,
   ) +
   theme_minimal()
 ```
+- Converted customers show **higher email engagement** (median opens: **10 vs. 6**; clicks: **5 vs. 3**).
+- They also have **more previous purchases**, suggesting stronger engagement is associated with conversion.
+
 
 ## AO4: Model Fitting
-
 ```{r}
 #| label: ao4-fit
 
@@ -1593,12 +1598,11 @@ ao4_fit_lm <- workflow() |>
       set_engine("lm")
   ) |>
   fit(data = ao4_train)
-```
 
 # --------------------------------------------------
 # Classification recipe: Conversion
 # --------------------------------------------------
-```{r}
+
 ao4_recipe <- recipe(
   Conversion ~ EmailOpens + EmailClicks + PreviousPurchases,
   data = ao4_train
@@ -1646,7 +1650,6 @@ ao4_fit_rf <- workflow() |>
   ) |>
   fit(data = ao4_train)
 ```
-
 - **Split:** 80% training / 20% testing, stratified by `Conversion`
 - **Regression model:** Linear Regression predicts `ConversionRate`
 - **Classification models:** Logistic Regression, Decision Tree, and Random Forest predict `Conversion`
@@ -1654,7 +1657,6 @@ ao4_fit_rf <- workflow() |>
 
 
 ## AO4: Prediction & Model Evaluation
-
 ```{r}
 #| label: ao4-eval
 #| fig-width: 8
@@ -1681,6 +1683,7 @@ ao4_reg_metrics
 # ------------------------------------------------------------
 # Classification model evaluation
 # ------------------------------------------------------------
+
 # Generate class probabilities and predictions
 make_ao4_preds <- function(fit_obj, model_name) {
   bind_cols(
@@ -1725,6 +1728,7 @@ ao4_metrics <- ao4_results |>
 
 ao4_metrics
 
+
 # ROC curves
 ao4_results |>
   group_by(model) |>
@@ -1738,8 +1742,10 @@ ao4_results |>
     title = "ROC Curves — AO4 Classification Models"
   )
 ```
-
 - **Regression:** Linear Regression is evaluated using RMSE, MAE, and R² to determine how well customer behavior predicts `ConversionRate`.
+
+---
+
 - **Classification:** Logistic Regression, Decision Tree, and Random Forest are compared using the same held-out test set.
 - Because approximately **87.7% of customers converted**, accuracy alone may overstate model performance.
 - **ROC AUC is the primary classification metric**, because it measures how well each model distinguishes converters from non-converters across probability thresholds.
@@ -1781,27 +1787,26 @@ ggplot(
   ) +
   theme_minimal()
 ```
-
-- Random Forest variable importance shows that **PreviousPurchases** is the most important predictor of customer conversion among the three behavioral variables.
-- **EmailOpens** and **EmailClicks** also contribute to prediction, although their importance is slightly lower and relatively similar.
-- Overall, the results suggest that **previous purchasing behavior may provide more predictive information than email engagement alone**.
-- However, variable importance should be interpreted cautiously because the overall classification performance is moderate (ROC AUC = **0.656**).
-
-## AO4: Summary Findings
+- **PreviousPurchases** is the strongest predictor, followed by **EmailOpens** and **EmailClicks**.
+- Purchase history appears to be more useful for predicting conversion than email engagement alone.
+- The model has **moderate predictive power (ROC AUC = 0.656)**, so the results should be interpreted with caution.
 
 ::: incremental
 
-- **Customer interaction is associated with conversion:** customers who converted generally showed higher levels of `EmailOpens`, `EmailClicks`, and `PreviousPurchases` than customers who did not convert.
+## AO4: Summary Findings
 
-- **All three behavioral variables contribute to conversion prediction:** Logistic Regression shows positive relationships between `EmailOpens`, `EmailClicks`, `PreviousPurchases`, and the likelihood of conversion.
+- Higher **EmailOpens, EmailClicks, and PreviousPurchases** are associated with higher conversion.
 
-- **Previous purchasing behavior is the most important predictor:** Random Forest variable importance identifies `PreviousPurchases` as the strongest predictor, followed by `EmailOpens` and `EmailClicks`.
+- **PreviousPurchases** is the strongest predictor, followed by **EmailOpens** and **EmailClicks**.
 
-- **Predictive caution:** the Logistic Regression model achieved a ROC AUC of approximately **0.656**, indicating moderate but limited ability to distinguish converters from non-converters. Because about **87.6%** of customers converted, accuracy alone may overstate model performance.
+- Model performance is **moderate (ROC AUC = 0.656)**; the **87.6% conversion rate** also means accuracy alone can be misleading.
 
-- **Business implication:** marketers should consider both historical purchasing behavior and email engagement when identifying customers with higher conversion potential, with `PreviousPurchases` providing particularly useful predictive information.
+- **Business implication:** use both **purchase history and email engagement** to identify customers with higher conversion potential.
 
 :::
+
+
+
 
 
 <!-- =================================================================== -->
