@@ -44,7 +44,7 @@ execute:
 3. Analytics Objective 1 — *[Member 1]*
 4. Analytics Objective 2 — *[Member 2]*
 5. Analytics Objective 3 — *[Member 3]*
-6. Analytics Objective 4 — *Sandy Zhu* - Customer Engagement, Purchase Behavior, and Marketing Outcomes
+6. Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and Purchase Behavior
 7. Analytics Objective 5 — *Jungmin Woo* — On-Site Engagement & Loyalty
 8. Conclusion
 9. Appendix
@@ -68,7 +68,7 @@ execute:
 - **RO1:** TODO — linked to AO1
 - **RO2:** TODO — linked to AO2
 - **RO3:** TODO — linked to AO3
-- **RO4:** To evaluate how customer interaction and previous purchasing behavior are associated with customer conversion and broader marketing outcomes, and to identify the most important behavioral drivers for predicting customer response.
+- **RO4:** To evaluate how customer interaction and previous purchasing behavior influence short-term marketing response and conversion, and to identify the most important behavioral drivers for predicting conversion.
 - **RO5:** On-Site Engagement and Customer Loyalty Relationship — To examine how customer behavior patterns inside the website relate to their actual brand loyalty and social media advocacy. — linked to AO5
 :::
 
