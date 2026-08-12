@@ -1,0 +1,920 @@
+---
+title: "Final Project Predictive Analytics Test"
+author: "Sora Hosoda"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+# Setup
+
+```{r}
+library(tidymodels)
+library(tidyverse)
+library(xgboost)
+library(vip)
+
+tidymodels_prefer()
+
+set.seed(2025)
+```
+
+# Data
+
+```{r}
+marketing_data <- read_csv(
+  "digital_marketing_campaign_dataset.csv"
+)
+
+glimpse(marketing_data)
+```
+
+# Analytics Objective
+
+> To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
+
+- **Learning type:** Supervised learning
+- **Outcome:** `Conversion`
+- **Broader method:** Classification
+
+# Data Check
+
+```{r}
+marketing_data |>
+  summarise(
+    rows = n(),
+    columns = ncol(marketing_data),
+    missing_values = sum(is.na(marketing_data)),
+    duplicate_rows = sum(duplicated(marketing_data))
+  )
+```
+
+# Outcome Distribution
+
+```{r}
+marketing_data |>
+  count(Conversion) |>
+  mutate(
+    proportion = n / sum(n)
+  )
+```
+
+# Train/Test Split
+
+```{r}
+marketing_data <- marketing_data |>
+  mutate(
+    Conversion = factor(
+      Conversion,
+      levels = c(1, 0),
+      labels = c("Yes", "No")
+    )
+  )
+
+set.seed(617)
+
+marketing_split <- initial_split(
+  marketing_data,
+  prop = 0.80,
+  strata = Conversion
+)
+
+marketing_train <- training(marketing_split)
+marketing_test <- testing(marketing_split)
+
+cat(
+  "Training rows:",
+  nrow(marketing_train),
+  "\n"
+)
+
+cat(
+  "Test rows    :",
+  nrow(marketing_test),
+  "\n"
+)
+
+marketing_train |>
+  count(Conversion) |>
+  mutate(
+    proportion = n / sum(n)
+  )
+
+marketing_test |>
+  count(Conversion) |>
+  mutate(
+    proportion = n / sum(n)
+  )
+```
+
+# Recipe
+
+```{r}
+conversion_rec <- recipe(
+  Conversion ~
+    Age +
+    Gender +
+    Income +
+    CampaignChannel +
+    CampaignType +
+    AdSpend +
+    ClickThroughRate +
+    WebsiteVisits +
+    PagesPerVisit +
+    TimeOnSite +
+    SocialShares +
+    EmailOpens +
+    EmailClicks +
+    PreviousPurchases +
+    LoyaltyPoints,
+  data = marketing_train
+) |>
+  step_impute_median(
+    all_numeric_predictors()
+  ) |>
+  step_dummy(
+    all_nominal_predictors()
+  ) |>
+  step_zv(
+    all_predictors()
+  ) |>
+  step_nzv(
+    all_predictors()
+  ) |>
+  step_normalize(
+    all_numeric_predictors()
+  )
+
+conversion_rec
+```
+
+# Baseline Classification Model
+
+## Logistic Regression
+
+```{r}
+logistic_spec <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification")
+
+logistic_wf <- workflow() |>
+  add_recipe(conversion_rec) |>
+  add_model(logistic_spec)
+
+logistic_fit <- fit(
+  logistic_wf,
+  data = marketing_train
+)
+
+logistic_fit
+```
+
+# Model Evaluation
+
+## Logistic Regression Evaluation
+
+```{r}
+logistic_preds <- augment(
+  logistic_fit,
+  new_data = marketing_test
+)
+
+logistic_preds |>
+  metric_set(
+    accuracy,
+    roc_auc,
+    sens,
+    spec
+  )(
+    truth = Conversion,
+    estimate = .pred_class,
+    .pred_Yes
+  )
+```
+
+```{r}
+conf_mat(
+  logistic_preds,
+  truth = Conversion,
+  estimate = .pred_class
+)
+```
+
+# Alternative Models
+
+## Decision Tree
+
+### Tree Recipe
+
+```{r}
+tree_rec <- recipe(
+  Conversion ~
+    Age +
+    Gender +
+    Income +
+    CampaignChannel +
+    CampaignType +
+    AdSpend +
+    ClickThroughRate +
+    WebsiteVisits +
+    PagesPerVisit +
+    TimeOnSite +
+    SocialShares +
+    EmailOpens +
+    EmailClicks +
+    PreviousPurchases +
+    LoyaltyPoints,
+  data = marketing_train
+) |>
+  step_impute_median(
+    all_numeric_predictors()
+  ) |>
+  step_novel(
+    all_nominal_predictors()
+  ) |>
+  step_unknown(
+    all_nominal_predictors()
+  ) |>
+  step_zv(
+    all_predictors()
+  )
+
+tree_rec
+```
+
+### Decision Tree Model
+
+```{r}
+tree_spec <- decision_tree(
+  cost_complexity = 0.001,
+  tree_depth = 10,
+  min_n = 20
+) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+
+tree_wf <- workflow() |>
+  add_recipe(tree_rec) |>
+  add_model(tree_spec)
+
+tree_fit <- fit(
+  tree_wf,
+  data = marketing_train
+)
+
+tree_fit
+```
+
+### Decision Tree Evaluation
+
+```{r}
+tree_preds <- augment(
+  tree_fit,
+  new_data = marketing_test
+)
+
+tree_preds |>
+  metric_set(
+    accuracy,
+    roc_auc,
+    sens,
+    spec
+  )(
+    truth = Conversion,
+    estimate = .pred_class,
+    .pred_Yes
+  )
+```
+
+```{r}
+conf_mat(
+  tree_preds,
+  truth = Conversion,
+  estimate = .pred_class
+)
+```
+
+# 10-Fold Cross-Validation
+
+## Cross-Validation Folds
+
+```{r}
+set.seed(2025)
+
+conversion_folds <- vfold_cv(
+  marketing_train,
+  v = 10,
+  strata = Conversion
+)
+
+conversion_folds
+```
+
+# Random Forest
+
+## Random Forest Specification and Tuning
+
+```{r}
+rf_grid <- tibble(
+  mtry = c(5L, 10L),
+  min_n = c(10L, 30L)
+)
+
+rf_spec <- rand_forest(
+  mtry = tune(),
+  min_n = tune(),
+  trees = 100
+) |>
+  set_engine(
+    "ranger",
+    importance = "permutation"
+  ) |>
+  set_mode("classification")
+
+rf_wf <- workflow() |>
+  add_recipe(tree_rec) |>
+  add_model(rf_spec)
+
+set.seed(2025)
+
+rf_results <- tune_grid(
+  rf_wf,
+  resamples = conversion_folds,
+  grid = rf_grid,
+  metrics = metric_set(
+    roc_auc,
+    accuracy
+  )
+)
+```
+
+## Best Random Forest Parameters
+
+```{r}
+rf_best <- select_best(
+  rf_results,
+  metric = "roc_auc"
+)
+
+rf_best
+
+show_best(
+  rf_results,
+  metric = "roc_auc",
+  n = 2
+)
+```
+
+## Final Random Forest Model
+
+```{r}
+final_rf_wf <- finalize_workflow(
+  rf_wf,
+  rf_best
+)
+
+final_rf_fit <- fit(
+  final_rf_wf,
+  data = marketing_train
+)
+
+final_rf_fit
+```
+
+## Random Forest Evaluation
+
+```{r}
+rf_preds <- augment(
+  final_rf_fit,
+  new_data = marketing_test
+)
+
+rf_preds |>
+  metric_set(
+    accuracy,
+    roc_auc,
+    sens,
+    spec
+  )(
+    truth = Conversion,
+    estimate = .pred_class,
+    .pred_Yes
+  )
+```
+
+```{r}
+conf_mat(
+  rf_preds,
+  truth = Conversion,
+  estimate = .pred_class
+)
+```
+
+# XGBoost
+
+## XGBoost Recipe
+
+```{r}
+xgb_rec <- recipe(
+  Conversion ~
+    Age +
+    Gender +
+    Income +
+    CampaignChannel +
+    CampaignType +
+    AdSpend +
+    ClickThroughRate +
+    WebsiteVisits +
+    PagesPerVisit +
+    TimeOnSite +
+    SocialShares +
+    EmailOpens +
+    EmailClicks +
+    PreviousPurchases +
+    LoyaltyPoints,
+  data = marketing_train
+) |>
+  step_impute_median(
+    all_numeric_predictors()
+  ) |>
+  step_novel(
+    all_nominal_predictors()
+  ) |>
+  step_unknown(
+    all_nominal_predictors()
+  ) |>
+  step_dummy(
+    all_nominal_predictors(),
+    one_hot = TRUE
+  ) |>
+  step_zv(
+    all_predictors()
+  )
+
+xgb_rec
+```
+
+## XGBoost Specification
+
+```{r}
+xgb_spec <- boost_tree(
+  trees = 300,
+  tree_depth = tune(),
+  learn_rate = tune(),
+  min_n = tune()
+) |>
+  set_engine("xgboost") |>
+  set_mode("classification")
+
+xgb_wf <- workflow() |>
+  add_recipe(xgb_rec) |>
+  add_model(xgb_spec)
+
+xgb_wf
+```
+
+## XGBoost Tuning
+
+```{r}
+xgb_grid <- tibble(
+  tree_depth = c(
+    2L,
+    4L,
+    4L,
+    6L
+  ),
+  learn_rate = c(
+    0.01,
+    0.01,
+    0.05,
+    0.05
+  ),
+  min_n = c(
+    5L,
+    15L,
+    15L,
+    30L
+  )
+)
+
+set.seed(2025)
+
+xgb_results <- tune_grid(
+  xgb_wf,
+  resamples = conversion_folds,
+  grid = xgb_grid,
+  metrics = metric_set(
+    roc_auc,
+    accuracy
+  )
+)
+```
+
+## Best XGBoost Parameters
+
+```{r}
+xgb_best <- select_best(
+  xgb_results,
+  metric = "roc_auc"
+)
+
+xgb_best
+
+show_best(
+  xgb_results,
+  metric = "roc_auc",
+  n = 4
+)
+```
+
+## Final XGBoost Model
+
+```{r}
+final_xgb_wf <- finalize_workflow(
+  xgb_wf,
+  xgb_best
+)
+
+final_xgb_fit <- fit(
+  final_xgb_wf,
+  data = marketing_train
+)
+
+final_xgb_fit
+```
+
+## XGBoost Evaluation
+
+```{r}
+xgb_preds <- augment(
+  final_xgb_fit,
+  new_data = marketing_test
+)
+
+xgb_preds |>
+  metric_set(
+    accuracy,
+    roc_auc,
+    sens,
+    spec
+  )(
+    truth = Conversion,
+    estimate = .pred_class,
+    .pred_Yes
+  )
+```
+
+```{r}
+conf_mat(
+  xgb_preds,
+  truth = Conversion,
+  estimate = .pred_class
+)
+```
+
+# Model Comparison
+
+## Logistic Regression Cross-Validation
+
+```{r}
+set.seed(2025)
+
+logistic_cv <- fit_resamples(
+  logistic_wf,
+  resamples = conversion_folds,
+  metrics = metric_set(
+    roc_auc,
+    accuracy
+  )
+)
+
+collect_metrics(logistic_cv)
+```
+
+## Decision Tree Cross-Validation
+
+```{r}
+set.seed(2025)
+
+tree_cv <- fit_resamples(
+  tree_wf,
+  resamples = conversion_folds,
+  metrics = metric_set(
+    roc_auc,
+    accuracy
+  )
+)
+
+collect_metrics(tree_cv)
+```
+
+## Cross-Validation Comparison
+
+```{r}
+logistic_cv_auc <- collect_metrics(
+  logistic_cv
+) |>
+  filter(
+    .metric == "roc_auc"
+  ) |>
+  transmute(
+    model = "Logistic Regression",
+    mean_roc_auc = mean,
+    std_err = std_err
+  )
+
+tree_cv_auc <- collect_metrics(
+  tree_cv
+) |>
+  filter(
+    .metric == "roc_auc"
+  ) |>
+  transmute(
+    model = "Decision Tree",
+    mean_roc_auc = mean,
+    std_err = std_err
+  )
+
+rf_cv_auc <- show_best(
+  rf_results,
+  metric = "roc_auc",
+  n = 1
+) |>
+  transmute(
+    model = "Random Forest",
+    mean_roc_auc = mean,
+    std_err = std_err
+  )
+
+xgb_cv_auc <- show_best(
+  xgb_results,
+  metric = "roc_auc",
+  n = 1
+) |>
+  transmute(
+    model = "XGBoost",
+    mean_roc_auc = mean,
+    std_err = std_err
+  )
+
+cv_comparison <- bind_rows(
+  logistic_cv_auc,
+  tree_cv_auc,
+  rf_cv_auc,
+  xgb_cv_auc
+) |>
+  arrange(
+    desc(mean_roc_auc)
+  )
+
+cv_comparison
+```
+
+## Cross-Validation Comparison Plot
+
+```{r}
+cv_comparison |>
+  ggplot(
+    aes(
+      x = reorder(
+        model,
+        mean_roc_auc
+      ),
+      y = mean_roc_auc
+    )
+  ) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "10-Fold Cross-Validation ROC AUC",
+    x = NULL,
+    y = "Mean ROC AUC"
+  ) +
+  theme_minimal()
+```
+
+# Variable Importance
+
+## XGBoost Variable Importance with VIP
+
+```{r}
+final_xgb_fit |>
+  workflows::extract_fit_parsnip() |>
+  vip::vip(
+    num_features = 15
+  ) +
+  labs(
+    title = "XGBoost Variable Importance",
+    subtitle = "Importance based on model contribution"
+  ) +
+  theme_minimal()
+```
+
+# PDP
+
+## Prepare Final XGBoost Model for Interpretation
+
+```{r}
+xgb_prep <- prep(
+  xgb_rec,
+  training = marketing_train
+)
+
+xgb_baked <- bake(
+  xgb_prep,
+  new_data = marketing_train
+)
+
+predictor_names <- setdiff(
+  names(xgb_baked),
+  "Conversion"
+)
+
+xgb_matrix <- as.matrix(
+  xgb_baked[
+    ,
+    predictor_names
+  ]
+)
+
+xgb_engine <- workflows::extract_fit_parsnip(
+  final_xgb_fit
+)$fit
+```
+
+## Partial Dependence Plot for AdSpend
+
+```{r}
+adspend_values <- seq(
+  from = quantile(
+    marketing_train$AdSpend,
+    0.05
+  ),
+  to = quantile(
+    marketing_train$AdSpend,
+    0.95
+  ),
+  length.out = 30
+)
+
+pdp_adspend_list <- lapply(
+  adspend_values,
+  function(value) {
+
+    pd_data <- marketing_train
+
+    pd_data$AdSpend <- value
+
+    pd_baked <- recipes::bake(
+      xgb_prep,
+      new_data = pd_data
+    )
+
+    pd_matrix <- as.matrix(
+      pd_baked[
+        ,
+        predictor_names
+      ]
+    )
+
+    pd_dmatrix <- xgboost::xgb.DMatrix(
+      data = pd_matrix
+    )
+
+    pd_prediction <- predict(
+      xgb_engine,
+      pd_dmatrix
+    )
+
+    data.frame(
+      AdSpend = value,
+      Predicted_Conversion = mean(
+        pd_prediction
+      )
+    )
+  }
+)
+
+pdp_adspend <- do.call(
+  rbind,
+  pdp_adspend_list
+)
+
+pdp_adspend
+```
+
+```{r}
+ggplot(
+  pdp_adspend,
+  aes(
+    x = AdSpend,
+    y = Predicted_Conversion
+  )
+) +
+  geom_line(
+    linewidth = 1
+  ) +
+  labs(
+    title = "Partial Dependence of Conversion on Ad Spend",
+    x = "Ad Spend",
+    y = "Average Predicted Conversion Probability"
+  ) +
+  theme_minimal()
+```
+
+# SHAP
+
+## SHAP Feature Importance
+
+```{r}
+shap_values <- predict(
+  xgb_engine,
+  xgb_matrix,
+  predcontrib = TRUE
+)
+
+shap_matrix <- as.matrix(
+  shap_values
+)
+
+shap_matrix <- shap_matrix[
+  ,
+  !colnames(shap_matrix) %in%
+    c(
+      "BIAS",
+      "(Intercept)"
+    ),
+  drop = FALSE
+]
+
+shap_importance <- data.frame(
+  Feature = colnames(
+    shap_matrix
+  ),
+  Mean_Abs_SHAP = colMeans(
+    abs(shap_matrix)
+  )
+)
+
+shap_importance <- shap_importance[
+  order(
+    shap_importance$Mean_Abs_SHAP,
+    decreasing = TRUE
+  ),
+]
+
+head(
+  shap_importance,
+  15
+)
+```
+
+```{r}
+shap_plot_data <- head(
+  shap_importance,
+  15
+)
+
+ggplot(
+  shap_plot_data,
+  aes(
+    x = reorder(
+      Feature,
+      Mean_Abs_SHAP
+    ),
+    y = Mean_Abs_SHAP
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "XGBoost SHAP Feature Importance",
+    subtitle = "Mean absolute SHAP values",
+    x = NULL,
+    y = "Mean Absolute SHAP Value"
+  ) +
+  theme_minimal()
+```
+
+# Summary Findings
+
+> Four classification models were compared using 10-fold cross-validation. XGBoost achieved the highest mean ROC AUC (0.818), followed by Random Forest (0.795), Logistic Regression (0.779), and Decision Tree (0.699).
+
+> On the test set, XGBoost also produced the strongest overall performance, with an accuracy of 0.918 and ROC AUC of 0.844. The model maintained very high sensitivity (0.995), while specificity remained lower at 0.374.
+
+> XGBoost variable importance showed that marketing activity and customer engagement variables were among the most useful predictors of customer conversion.
+
+> SHAP feature importance showed that CampaignType_Conversion had the largest average contribution to model predictions, followed by EmailClicks, PreviousPurchases, ClickThroughRate, LoyaltyPoints, and PagesPerVisit. Demographic variables such as Age and Income had much smaller contributions.
+
+> The partial dependence plot for AdSpend showed a nonlinear relationship. Predicted conversion probability remained relatively stable at lower spending levels, increased around an AdSpend level of approximately 5,000, and then remained relatively high.
+
+> Overall, the results suggest that customer engagement, purchase history, and marketing activity are more useful for predicting conversion than demographic characteristics in this dataset.
