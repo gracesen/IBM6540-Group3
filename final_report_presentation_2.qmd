@@ -1102,12 +1102,13 @@ ggplot(ao4_behavior,
 ```
 
 ## AO4: Model Fitting
+
 ```{r}
 #| label: ao4-fit
 
 set.seed(2026)
 
-# 80/20 stratified train-test split
+# 80/20 stratified split
 ao4_split <- initial_split(
   ao4_data,
   prop = 0.80,
@@ -1117,7 +1118,29 @@ ao4_split <- initial_split(
 ao4_train <- training(ao4_split)
 ao4_test  <- testing(ao4_split)
 
-# Recipe
+# --------------------------------------------------
+# Linear Regression: ConversionRate
+# --------------------------------------------------
+
+ao4_fit_lm <- workflow() |>
+  add_recipe(
+    recipe(
+      ConversionRate ~ EmailOpens + EmailClicks + PreviousPurchases,
+      data = ao4_train
+    ) |>
+      step_zv(all_predictors()) |>
+      step_normalize(all_numeric_predictors())
+  ) |>
+  add_model(
+    linear_reg() |>
+      set_engine("lm")
+  ) |>
+  fit(data = ao4_train)
+```
+# --------------------------------------------------
+# Classification recipe: Conversion
+# --------------------------------------------------
+```{r}
 ao4_recipe <- recipe(
   Conversion ~ EmailOpens + EmailClicks + PreviousPurchases,
   data = ao4_train
@@ -1126,50 +1149,50 @@ ao4_recipe <- recipe(
   step_normalize(all_numeric_predictors())
 
 # Logistic Regression
-ao4_logit <- logistic_reg() |>
-  set_engine("glm") |>
-  set_mode("classification")
-
 ao4_fit_logit <- workflow() |>
   add_recipe(ao4_recipe) |>
-  add_model(ao4_logit) |>
+  add_model(
+    logistic_reg() |>
+      set_engine("glm")
+  ) |>
   fit(data = ao4_train)
 
 # Decision Tree
-ao4_tree <- decision_tree(
-  tree_depth = 5,
-  min_n = 20
-) |>
-  set_engine("rpart") |>
-  set_mode("classification")
-
 ao4_fit_tree <- workflow() |>
   add_recipe(ao4_recipe) |>
-  add_model(ao4_tree) |>
+  add_model(
+    decision_tree(
+      tree_depth = 5,
+      min_n = 20
+    ) |>
+      set_engine("rpart") |>
+      set_mode("classification")
+  ) |>
   fit(data = ao4_train)
 
 # Random Forest
-ao4_rf <- rand_forest(
-  trees = 500,
-  mtry = 2,
-  min_n = 10
-) |>
-  set_engine(
-    "ranger",
-    importance = "permutation",
-    probability = TRUE
-  ) |>
-  set_mode("classification")
-
 ao4_fit_rf <- workflow() |>
   add_recipe(ao4_recipe) |>
-  add_model(ao4_rf) |>
+  add_model(
+    rand_forest(
+      trees = 500,
+      mtry = 2,
+      min_n = 10
+    ) |>
+      set_engine(
+        "ranger",
+        importance = "permutation",
+        probability = TRUE
+      ) |>
+      set_mode("classification")
+  ) |>
   fit(data = ao4_train)
 ```
+
 - **Split:** 80% training / 20% testing, stratified by `Conversion`
-- **Recipe:** zero-variance removal + normalization of numeric predictors
-- **Models:** Logistic Regression, Decision Tree, and Random Forest
-- **Purpose:** compare an interpretable baseline model with tree-based and ensemble classification methods.
+- **Regression model:** Linear Regression predicts `ConversionRate`
+- **Classification models:** Logistic Regression, Decision Tree, and Random Forest predict `Conversion`
+- **Purpose:** compare interpretable linear/classification methods with tree-based and ensemble approaches.
 
 
 ## AO4: Prediction & Model Evaluation
