@@ -4,7 +4,7 @@ subtitle: "Group Project Final Report Presentation"
 author:
   - "Member 1 Name"
   - "Member 2 Name"
-  - "Member 3 Name"
+  - "Grace Sen"
   - "Sandy Zhu"
   - "Jungmin Woo"
 date: today
@@ -43,7 +43,7 @@ execute:
 2. Population / Sample & Sample Characteristics
 3. Analytics Objective 1 — *[Member 1]*
 4. Analytics Objective 2 — *[Member 2]*
-5. Analytics Objective 3 — *[Member 3]*
+5. Analytics Objective 3 — *Grace Sen* - Customer Demographics and Conversion
 6. Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and Purchase Behavior
 7. Analytics Objective 5 — *Jungmin Woo* — Impact of Campaign Channel and Type on Customer Conversion
 8. Conclusion
@@ -67,7 +67,7 @@ execute:
 ::: incremental
 - **RO1:** TODO — linked to AO1
 - **RO2:** TODO — linked to AO2
-- **RO3:** TODO — linked to AO3
+- **RO3:** To examine whether customer demographic characteristics influence the likelihood of digital marketing conversion.
 - **RO4:** To evaluate how customer interaction and previous purchasing behavior relate to short-term marketing response and customer conversion, and to identify the most important behavioral drivers of conversion.
 - **RO5:** Impact of Campaign Channel and Type on Customer Conversion
 :::
@@ -255,49 +255,483 @@ blank
 blank
 
 <!-- =================================================================== -->
-<!-- AO3 — left blank for Member 3 to fill in                            -->
+<!-- AO3 — Customer Demographics and Conversion                            -->
 <!-- =================================================================== -->
 
-# Analytics Objective 3 — *[Member 3 Name]*
+# Analytics Objective 3 — *Grace Sen*
 
-## AO3: blank
 
-blank
+```{r}
+#| label: ao3-hidden-setup
+#| include: false
+#| warning: false
+#| message: false
 
-## AO3: Machine Learning Methods to be Used
+library(tidyverse)
+library(tidymodels)
+library(ranger)
+library(scales)
 
-::: {.panel-tabset}
+tidymodels_prefer()
+set.seed(6540)
 
-### Regression-Focused Methods
-blank
+cpp_green <- "#1E4D2B"
+cpp_gold  <- "#FFB81C"
+cpp_gray  <- "#5C6670"
 
-### Classification-Focused Methods
-blank
+theme_set(
+  theme_minimal(base_size = 17) +
+    theme(
+      plot.title.position = "plot",
+      plot.title = element_text(face = "bold", color = cpp_green),
+      legend.position = "bottom",
+      panel.grid.minor = element_blank()
+    )
+)
 
-### Ensembles
-blank
+data_path <- "dataset/digital_marketing_campaign_dataset.csv"
 
+marketing_raw <- read_csv(data_path, show_col_types = FALSE) |>
+  rename_with(~ tolower(gsub("[^A-Za-z0-9]+", "_", .x)))
+
+ao3 <- marketing_raw |>
+  transmute(
+    age = age,
+    gender = factor(gender),
+    income = income,
+    conversion = factor(
+      conversion,
+      levels = c(1, 0),
+      labels = c("Converted", "Not converted")
+    )
+  )
+
+outcome_summary <- ao3 |>
+  count(conversion) |>
+  mutate(proportion = n / sum(n))
+
+gender_rates <- ao3 |>
+  group_by(gender) |>
+  summarise(
+    customers = n(),
+    conversion_rate = mean(conversion == "Converted"),
+    .groups = "drop"
+  )
+
+set.seed(6540)
+ao3_split <- initial_split(ao3, prop = 0.75, strata = conversion)
+ao3_train <- training(ao3_split)
+ao3_test  <- testing(ao3_split)
+
+ao3_recipe <- recipe(conversion ~ age + gender + income, data = ao3_train) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_novel(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors(), one_hot = FALSE) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_numeric_predictors())
+
+log_spec <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification")
+
+log_workflow <- workflow() |>
+  add_recipe(ao3_recipe) |>
+  add_model(log_spec)
+
+log_fit <- fit(log_workflow, data = ao3_train)
+
+set.seed(6540)
+ao3_folds <- vfold_cv(ao3_train, v = 5, strata = conversion)
+
+rf_spec <- rand_forest(
+  trees = 500,
+  mtry = tune(),
+  min_n = tune()
+) |>
+  set_engine("ranger", probability = TRUE, importance = "permutation") |>
+  set_mode("classification")
+
+rf_workflow <- workflow() |>
+  add_recipe(ao3_recipe) |>
+  add_model(rf_spec)
+
+rf_grid <- grid_regular(
+  mtry(range = c(1L, 3L)),
+  min_n(range = c(5L, 30L)),
+  levels = c(mtry = 3, min_n = 4)
+)
+
+set.seed(6540)
+rf_tuned <- tune_grid(
+  rf_workflow,
+  resamples = ao3_folds,
+  grid = rf_grid,
+  metrics = metric_set(roc_auc, pr_auc, bal_accuracy),
+  control = control_grid(save_pred = TRUE)
+)
+
+best_rf <- select_best(rf_tuned, metric = "roc_auc")
+final_rf_workflow <- finalize_workflow(rf_workflow, best_rf)
+rf_fit <- fit(final_rf_workflow, data = ao3_train)
+
+predict_with_probabilities <- function(fitted_workflow, new_data, model_name) {
+  bind_cols(
+    new_data |> select(conversion),
+    predict(fitted_workflow, new_data, type = "class"),
+    predict(fitted_workflow, new_data, type = "prob")
+  ) |>
+    mutate(model = model_name)
+}
+
+log_predictions <- predict_with_probabilities(
+  log_fit, ao3_test, "Logistic regression"
+)
+rf_predictions <- predict_with_probabilities(
+  rf_fit, ao3_test, "Random forest"
+)
+
+baseline_predictions <- ao3_test |>
+  transmute(
+    conversion,
+    .pred_class = factor("Converted", levels = levels(conversion)),
+    .pred_Converted = mean(ao3_train$conversion == "Converted"),
+    .pred_Not.converted = 1 - .pred_Converted,
+    model = "Majority baseline"
+  )
+
+all_predictions <- bind_rows(
+  baseline_predictions,
+  log_predictions,
+  rf_predictions
+)
+
+classification_metrics <- metric_set(
+  accuracy, bal_accuracy, sens, spec, precision, recall
+)
+
+class_results <- all_predictions |>
+  group_by(model) |>
+  classification_metrics(truth = conversion, estimate = .pred_class)
+
+probability_results <- all_predictions |>
+  group_by(model) |>
+  metric_set(roc_auc, pr_auc)(
+    truth = conversion,
+    .pred_Converted,
+    event_level = "first"
+  )
+
+model_metrics <- bind_rows(class_results, probability_results) |>
+  select(model, .metric, .estimate) |>
+  pivot_wider(names_from = .metric, values_from = .estimate)
+
+best_model_row <- model_metrics |>
+  filter(model != "Majority baseline") |>
+  slice_max(roc_auc, n = 1, with_ties = FALSE)
+
+log_odds_ratios <- extract_fit_parsnip(log_fit) |>
+  tidy() |>
+  filter(term != "(Intercept)") |>
+  mutate(
+    odds_ratio = exp(estimate),
+    lower_95 = exp(estimate - 1.96 * std.error),
+    upper_95 = exp(estimate + 1.96 * std.error)
+  ) |>
+  select(term, odds_ratio, lower_95, upper_95, p.value)
+
+rf_engine <- extract_fit_engine(rf_fit)
+rf_importance <- enframe(
+  rf_engine$variable.importance,
+  name = "feature",
+  value = "importance"
+) |>
+  arrange(desc(importance))
+```
+
+## Do demographics help identify customers who convert? {background-color="#1E4D2B"}
+
+### Analytics Objective 3
+
+Examine whether **age, gender, and income** are associated with—and useful for predicting—customer conversion.
+
+::: objective-line
+**Predictors:** Age · Gender · Income\
+**Outcome:** Conversion (binary classification)
 :::
 
-## AO3: Data Wrangling & Visualization
+::: notes
+My analytics objective asks whether customer demographics help explain and predict conversion. I use age, gender, and income as predictors and conversion as the binary outcome. The analysis compares an interpretable logistic regression with a nonlinear ensemble model.
+:::
 
-blank
+## AO3: Data Wrangling & Visualization — Sample and Outcome
 
-## AO3: Model Fitting
+:::::: columns
+::: {.column width="48%"}
+```{r}
+#| fig-width: 7
+#| fig-height: 4.4
+ggplot(outcome_summary, aes(x = conversion, y = proportion, fill = conversion)) +
+  geom_col(width = 0.62, show.legend = FALSE) +
+  geom_text(
+    aes(label = percent(proportion, accuracy = 0.1)),
+    vjust = -0.35,
+    size = 6
+  ) +
+  scale_fill_manual(values = c(cpp_green, cpp_gold)) +
+  scale_y_continuous(labels = percent, limits = c(0, 1)) +
+  labs(x = NULL, y = "Share of customers")
+```
+:::
 
-blank
+:::: {.column width="48%"}
+- **`r (nrow(ao3))` customers**
+- **`r sum(is.na(ao3))` missing values** in AO3 variables
+- Conversion rate: `r scales::percent(mean(ao3$conversion == "Converted"), accuracy = 0.1)`
+
+::: key-message
+Accuracy alone is misleading: predicting “Converted” for everyone already produces high accuracy.
+:::
+
+**Primary metrics:** ROC AUC, PR AUC, balanced accuracy, sensitivity, and specificity.
+::::
+::::::
+
+::: notes
+The dataset contains 8,000 customers and no missing values in the four variables used here. Conversion is highly imbalanced. Because almost nine out of ten customers converted, accuracy can look strong even when a model does not separate the two classes. I therefore emphasize discrimination and class-balanced metrics.
+:::
+
+## AO3: Data Wrangling & Visualization — Income and Gender
+
+::::: columns
+::: {.column width="50%"}
+```{r}
+#| fig-width: 6.8
+#| fig-height: 4.7
+ggplot(ao3, aes(x = conversion, y = income, fill = conversion)) +
+  geom_boxplot(width = 0.62, alpha = 0.88, outlier.alpha = 0.18) +
+  scale_fill_manual(values = c(cpp_green, cpp_gold), guide = "none") +
+  scale_y_continuous(labels = dollar) +
+  labs(title = "Income distributions overlap", x = NULL, y = "Annual income")
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| fig-width: 6.8
+#| fig-height: 4.7
+ggplot(gender_rates, aes(x = gender, y = conversion_rate, fill = gender)) +
+  geom_col(width = 0.62, show.legend = FALSE) +
+  geom_text(
+    aes(label = percent(conversion_rate, accuracy = 0.01)),
+    vjust = -0.35,
+    size = 5.5
+  ) +
+  scale_fill_manual(values = c(cpp_green, cpp_gold)) +
+  scale_y_continuous(labels = percent, limits = c(0, 1)) +
+  labs(title = "Gender rates are nearly identical", x = NULL, y = "Conversion rate")
+```
+:::
+:::::
+
+::: takeaway
+Neither income nor gender appears to distinguish converters from non-converters on its own.
+:::
+
+::: notes
+The descriptive patterns already suggest weak demographic effects. Income medians and distributions substantially overlap across outcomes, while conversion rates are nearly equal across gender groups. These plots are descriptive, so the models next test whether the variables work better jointly.
+:::
+
+## AO3: Data Wrangling & Visualization — Age
+
+```{r}
+#| fig-width: 10.5
+#| fig-height: 5.3
+ggplot(ao3, aes(x = age, color = conversion)) +
+  geom_density(linewidth = 1.5, adjust = 1.1) +
+  scale_color_manual(values = c(cpp_green, cpp_gold)) +
+  labs(x = "Age", y = "Density", color = NULL)
+```
+
+::: takeaway
+Age provides little visible univariate discrimination across nearly the entire range.
+:::
+
+::: notes
+The age density curves overlap across almost the full distribution. Taken together, the exploratory results provide little evidence that any single demographic variable strongly separates the outcome classes.
+:::
+
+## AO3: Machine Learning Methods & Model Fitting {.smaller}
+
+:::::: columns
+::: {.column width="46%"}
+### Logistic regression
+
+- Interpretable adjusted associations
+- Standardized age and income
+- Odds ratios with 95% confidence intervals
+
+### Random forest
+
+- Captures nonlinearities and interactions
+- 500 trees
+- Five-fold stratified cross-validation
+- Tuned `mtry` and minimum node size
+:::
+
+:::: {.column width="50%"}
+### Leakage-safe evaluation
+
+1.  Stratified **75/25 train–test split**
+2.  Training-only preprocessing recipe
+3.  Dummy-code gender; normalize numeric predictors
+4.  Tune the forest within training folds
+5.  Evaluate once on the untouched test set
+
+::: key-message
+The majority-class prediction serves as the benchmark.
+:::
+::::
+::::::
+
+::: notes
+Logistic regression provides interpretable adjusted effects. Random forest tests whether nonlinear patterns or interactions add predictive value. The split is stratified, all preprocessing is learned on the training data only, and the test data remains untouched until final evaluation.
+:::
 
 ## AO3: Prediction & Model Evaluation
 
-blank
+:::::: columns
+::: {.column width="60%"}
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+model_metrics |>
+  filter(model != "Majority baseline") |>
+  select(model, roc_auc, bal_accuracy) |>
+  pivot_longer(-model, names_to = "metric", values_to = "score") |>
+  mutate(metric = recode(
+    metric,
+    roc_auc = "ROC AUC",
+    bal_accuracy = "Balanced accuracy"
+  )) |>
+  ggplot(aes(x = metric, y = score, fill = model)) +
+  geom_col(position = position_dodge(width = 0.75), width = 0.64) +
+  geom_hline(yintercept = 0.50, linetype = "dashed", color = cpp_gray) +
+  geom_text(
+    aes(label = number(score, accuracy = 0.001)),
+    position = position_dodge(width = 0.75),
+    vjust = -0.35,
+    size = 5
+  ) +
+  scale_fill_manual(values = c(cpp_green, cpp_gold)) +
+  scale_y_continuous(
+    limits = c(0, max(0.70, max(model_metrics$roc_auc, na.rm = TRUE) + 0.08))
+  ) +
+  labs(x = NULL, y = "Test-set score", fill = NULL)
+```
+:::
 
-## AO3: Interpretation
+:::: {.column width="36%"}
+### Held-out conclusion
 
-blank
+Better-performing model: **`r best_model_row$model`**
+
+ROC AUC: `r scales::number(best_model_row$roc_auc, accuracy = 0.001)`
+
+Balanced accuracy: `r scales::number(best_model_row$bal_accuracy, accuracy = 0.001)`
+
+::: key-message
+Scores near 0.50 indicate little ability to rank converters above non-converters.
+:::
+::::
+::::::
+
+::: notes
+On the held-out test set, the best demographic model has an ROC AUC and balanced accuracy near 0.50. That is approximately chance-level performance. High raw accuracy would not change this conclusion because the converted class dominates the sample.
+:::
+
+## AO3: Interpretation — Logistic Regression
+
+::::: columns
+::: {.column width="62%"}
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+ggplot(log_odds_ratios, aes(x = odds_ratio, y = reorder(term, odds_ratio))) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = cpp_gray) +
+  geom_errorbarh(
+    aes(xmin = lower_95, xmax = upper_95),
+    height = 0.16,
+    color = cpp_green,
+    linewidth = 1
+  ) +
+  geom_point(size = 4, color = cpp_green) +
+  labs(x = "Odds ratio with 95% CI", y = NULL)
+```
+:::
+
+::: {.column width="34%"}
+- Odds ratios near **1.00** indicate weak adjusted associations.
+- Intervals crossing **1.00** indicate limited evidence after controlling for the other demographics.
+- Association does not imply causation.
+:::
+:::::
+
+::: notes
+The logistic regression provides adjusted effects. Age and income are standardized, so each odds ratio represents a one-standard-deviation increase. Effects close to one, particularly with confidence intervals crossing one, support the same substantive conclusion as the held-out model evaluation.
+:::
+
+## AO3: Interpretation — Random Forest
+
+:::::: columns
+::: {.column width="62%"}
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+ggplot(rf_importance, aes(x = importance, y = reorder(feature, importance))) +
+  geom_col(fill = cpp_green, width = 0.64) +
+  labs(x = "Permutation importance", y = NULL)
+```
+:::
+
+:::: {.column width="34%"}
+Permutation importance ranks predictors **within the fitted forest**.
+
+::: key-message
+A weak model can still rank weak predictors. Importance is relative and does not establish a business driver or causal effect.
+:::
+::::
+::::::
+
+::: notes
+The random forest still produces a ranking because permutation importance is relative. We should not describe the top-ranked demographic as a strong driver when the entire model performs near chance. Variable importance also does not establish causality.
+:::
 
 ## AO3: Summary Findings
 
-blank
+::::: columns
+::: {.column width="48%"}
+### What AO3 found
+
+- Demographic distributions overlap substantially.
+- Both models showed weak test-set discrimination.
+- Demographics alone are insufficient for targeting.
+:::
+
+::: {.column width="48%"}
+### Business implication
+
+- Prioritize behavioral and engagement signals.
+- Use demographics for segmentation and fairness checks.
+- Validate the final model on external data.
+:::
+:::::
+
+**Takeaway:** Customer behavior is more promising than demographics for predicting conversion.
+
+::: notes
+The overall conclusion is that demographics alone do not meaningfully distinguish converters from non-converters. The business should prioritize engagement variables such as website visits, time on site, email activity, prior purchases, and campaign interactions. Demographics may remain useful for segmentation and fairness monitoring, but not as the primary targeting inputs.
+:::
+
 
 <!-- =================================================================== -->
 <!-- AO4 — left blank for Member 4 to fill in                            -->
