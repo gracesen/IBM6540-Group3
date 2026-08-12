@@ -44,7 +44,7 @@ execute:
 3. Analytics Objective 1 — *[Member 1]*
 4. Analytics Objective 2 — *[Member 2]*
 5. Analytics Objective 3 — *[Member 3]*
-6. Analytics Objective 4 — *[Member 4]*
+6. Analytics Objective 4 — *Sandy Zhu* - Customer Engagement, Purchase Behavior, and Marketing Outcomes
 7. Analytics Objective 5 — *Jungmin Woo* — On-Site Engagement & Loyalty
 8. Conclusion
 9. Appendix
