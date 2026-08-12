@@ -1,0 +1,582 @@
+---
+title: "Digital Marketing Campaign Analytics"
+subtitle: "Group Project Final Report Presentation"
+author:
+  - "Member 1 Name"
+  - "Member 2 Name"
+  - "Member 3 Name"
+  - "Member 4 Name"
+  - "Jungmin Woo"
+date: today
+format:
+  revealjs:
+    theme: simple
+    slide-number: c/t
+    footer: "Digital Marketing Campaign Analytics"
+    transition: fade
+    embed-resources: false
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    toc: false
+    chalkboard: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Cover Slide {background-color="#1f3864"}
+
+::: {style="text-align: center; margin-top: 15%; color: white;"}
+# Digital Marketing Campaign Analytics
+### Predicting Customer Conversion, Engagement, and ROI
+
+
+`r format(Sys.Date(), "%B %d, %Y")`
+:::
+
+## Table of Contents
+
+::: incremental
+1. Introduction
+2. Population / Sample & Sample Characteristics
+3. Analytics Objective 1 — *[Member 1]*
+4. Analytics Objective 2 — *[Member 2]*
+5. Analytics Objective 3 — *[Member 3]*
+6. Analytics Objective 4 — *[Member 4]*
+7. Analytics Objective 5 — *Jungmin Woo* — On-Site Engagement & Loyalty
+8. Conclusion
+9. Appendix
+:::
+
+# Introduction
+
+## Problem Definition
+
+> TODO: State the business problem in 2–3 sentences. What is the
+> marketing team struggling with (e.g., inefficient ad spend, unclear
+> which channels convert, low email/on-site engagement)?
+
+- Context: multi-channel digital marketing campaigns (Social Media, Email, PPC, Referral, SEO)
+- The gap: TODO
+- Who is affected / who benefits from solving this: TODO
+
+## Research Objectives
+
+::: incremental
+- **RO1:** TODO — linked to AO1
+- **RO2:** TODO — linked to AO2
+- **RO3:** TODO — linked to AO3
+- **RO4:** TODO — linked to AO4
+- **RO5:** On-Site Engagement and Customer Loyalty Relationship — To examine how customer behavior patterns inside the website relate to their actual brand loyalty and social media advocacy. — linked to AO5
+:::
+
+## Importance of the Research
+
+- Business value: TODO (e.g., optimize ad spend allocation, prioritize high-conversion channels, grow on-site experiences that build loyalty)
+- Academic / methodological value: TODO (e.g., comparing regression, classification, and ensemble methods on marketing data)
+- Stakeholders who benefit: TODO
+
+# Population / Sample
+
+## Population / Sample
+
+```{r}
+#| label: setup
+#| echo: true
+
+library(tidyverse)
+library(tidymodels)
+library(vip)         # variable importance
+library(DALEX)        # PDP / SHAP-style explanations
+library(DALEXtra)
+library(patchwork)
+
+tidymodels_prefer()
+theme_set(theme_minimal(base_size = 14))
+
+raw_data <- read_csv("digital_marketing_campaign_dataset.csv", show_col_types = FALSE)
+
+glimpse(raw_data)
+```
+
+- **Population:** Customers exposed to the company's digital marketing campaigns
+- **Sample:** `r format(nrow(raw_data), big.mark = ",")` customers, `r ncol(raw_data)` variables
+- **Sampling frame / period:** TODO (fill in if known — e.g., campaign dates, region)
+
+## Data Cleaning
+
+```{r}
+#| label: cleaning
+
+campaign_data <- raw_data |>
+  # AdvertisingPlatform / AdvertisingTool are fully de-identified
+  # (single constant value across all rows) -> not usable as predictors
+  select(-CustomerID, -AdvertisingPlatform, -AdvertisingTool) |>
+  mutate(
+    Gender = factor(Gender),
+    CampaignChannel = factor(CampaignChannel),
+    CampaignType = factor(CampaignType),
+    Conversion = factor(Conversion, levels = c(0, 1), labels = c("No", "Yes"))
+  )
+
+skimr::skim(campaign_data)
+```
+
+## Sample Characteristics
+
+```{r}
+#| label: sample-char-1
+#| fig-width: 9
+#| fig-height: 4.5
+
+p1 <- ggplot(campaign_data, aes(Age)) +
+  geom_histogram(bins = 30, fill = "#1f3864") +
+  labs(title = "Age Distribution")
+
+p2 <- ggplot(campaign_data, aes(Income)) +
+  geom_histogram(bins = 30, fill = "#2e75b6") +
+  labs(title = "Income Distribution")
+
+p1 + p2
+```
+
+## Sample Characteristics (cont.)
+
+```{r}
+#| label: sample-char-2
+#| fig-width: 9
+#| fig-height: 4.5
+
+p3 <- ggplot(campaign_data, aes(CampaignChannel, fill = Conversion)) +
+  geom_bar(position = "fill") +
+  labs(title = "Conversion Rate by Channel", y = "Proportion") +
+  coord_flip()
+
+p4 <- ggplot(campaign_data, aes(Gender, fill = Conversion)) +
+  geom_bar(position = "fill") +
+  labs(title = "Conversion Rate by Gender", y = "Proportion")
+
+p3 + p4
+```
+
+- Overall conversion rate: `r scales::percent(mean(campaign_data$Conversion == "Yes"))` (class-imbalanced — relevant for classification AOs)
+- TODO: add 2–3 bullet takeaways describing the sample (age range, income range, channel mix, etc.)
+
+<!-- =================================================================== -->
+<!-- AO1 — left blank for Member 1 to fill in                            -->
+<!-- =================================================================== -->
+
+# Analytics Objective 1 — *[Member 1 Name]*
+
+## AO1: blank
+
+blank
+
+## AO1: Machine Learning Methods to be Used
+
+::: {.panel-tabset}
+
+### Regression-Focused Methods
+blank
+
+### Classification-Focused Methods
+blank
+
+### Ensembles
+blank
+
+:::
+
+## AO1: Data Wrangling & Visualization
+
+blank
+
+## AO1: Model Fitting
+
+blank
+
+## AO1: Prediction & Model Evaluation
+
+blank
+
+## AO1: Interpretation
+
+blank
+
+## AO1: Summary Findings
+
+blank
+
+<!-- =================================================================== -->
+<!-- AO2 — left blank for Member 2 to fill in                            -->
+<!-- =================================================================== -->
+
+# Analytics Objective 2 — *[Member 2 Name]*
+
+## AO2: blank
+
+blank
+
+## AO2: Machine Learning Methods to be Used
+
+::: {.panel-tabset}
+
+### Regression-Focused Methods
+blank
+
+### Classification-Focused Methods
+blank
+
+### Ensembles
+blank
+
+:::
+
+## AO2: Data Wrangling & Visualization
+
+blank
+
+## AO2: Model Fitting
+
+blank
+
+## AO2: Prediction & Model Evaluation
+
+blank
+
+## AO2: Interpretation
+
+blank
+
+## AO2: Summary Findings
+
+blank
+
+<!-- =================================================================== -->
+<!-- AO3 — left blank for Member 3 to fill in                            -->
+<!-- =================================================================== -->
+
+# Analytics Objective 3 — *[Member 3 Name]*
+
+## AO3: blank
+
+blank
+
+## AO3: Machine Learning Methods to be Used
+
+::: {.panel-tabset}
+
+### Regression-Focused Methods
+blank
+
+### Classification-Focused Methods
+blank
+
+### Ensembles
+blank
+
+:::
+
+## AO3: Data Wrangling & Visualization
+
+blank
+
+## AO3: Model Fitting
+
+blank
+
+## AO3: Prediction & Model Evaluation
+
+blank
+
+## AO3: Interpretation
+
+blank
+
+## AO3: Summary Findings
+
+blank
+
+<!-- =================================================================== -->
+<!-- AO4 — left blank for Member 4 to fill in                            -->
+<!-- =================================================================== -->
+
+# Analytics Objective 4 — *[Member 4 Name]*
+
+## AO4: blank
+
+blank
+
+## AO4: Machine Learning Methods to be Used
+
+::: {.panel-tabset}
+
+### Regression-Focused Methods
+blank
+
+### Classification-Focused Methods
+blank
+
+### Ensembles
+blank
+
+:::
+
+## AO4: Data Wrangling & Visualization
+
+blank
+
+## AO4: Model Fitting
+
+blank
+
+## AO4: Prediction & Model Evaluation
+
+blank
+
+## AO4: Interpretation
+
+blank
+
+## AO4: Summary Findings
+
+blank
+
+<!-- =================================================================== -->
+<!-- AO5 — On-Site Engagement & Customer Loyalty (Regression)            -->
+<!-- RO5: To examine how customer behavior patterns inside the website   -->
+<!-- relate to their actual brand loyalty and social media advocacy.    -->
+<!-- =================================================================== -->
+
+# Analytics Objective 5 — *JUNGMIN WOO*
+
+## AO5: On-Site Engagement and Customer Loyalty Relationship
+
+> RO5: To examine how customer behavior patterns inside the website relate
+> to their actual brand loyalty and social media advocacy.
+
+- **Target variable:** `LoyaltyPoints` (continuous — used as the brand-loyalty proxy)
+- **Problem type:** Regression
+- **On-site engagement predictors:** `WebsiteVisits`, `PagesPerVisit`, `TimeOnSite`
+- **Social advocacy predictor:** `SocialShares`
+- **Controls:** `Age`, `Gender`, `Income`, `CampaignChannel`, `CampaignType`, `PreviousPurchases`, `EmailOpens`, `EmailClicks`
+
+## AO5: Machine Learning Methods to be Used
+
+::: {.panel-tabset}
+
+### Regression-Focused Methods
+- Multiple Linear Regression
+- Elastic Net Regression
+
+### Classification-Focused Methods
+- Not applicable (outcome is continuous)
+
+### Ensembles
+- Random Forest (regression)
+
+:::
+
+## AO5: Data Wrangling & Visualization
+
+```{r}
+#| label: ao5-wrangle
+#| fig-width: 9
+#| fig-height: 4.5
+
+ao5_data <- campaign_data |>
+  select(LoyaltyPoints, WebsiteVisits, PagesPerVisit, TimeOnSite, SocialShares,
+         EmailOpens, EmailClicks, PreviousPurchases,
+         Age, Gender, Income, CampaignChannel, CampaignType)
+
+ao5_p1 <- ggplot(ao5_data, aes(TimeOnSite, LoyaltyPoints)) +
+  geom_point(alpha = 0.3, color = "#2e75b6") +
+  geom_smooth(method = "lm", se = FALSE, color = "#1f3864") +
+  labs(title = "Loyalty Points vs. Time on Site")
+
+ao5_p2 <- ggplot(ao5_data, aes(SocialShares, LoyaltyPoints)) +
+  geom_point(alpha = 0.3, color = "#2e75b6") +
+  geom_smooth(method = "lm", se = FALSE, color = "#1f3864") +
+  labs(title = "Loyalty Points vs. Social Shares")
+
+ao5_p3 <- ggplot(ao5_data, aes(WebsiteVisits, LoyaltyPoints)) +
+  geom_point(alpha = 0.3, color = "#2e75b6") +
+  geom_smooth(method = "lm", se = FALSE, color = "#1f3864") +
+  labs(title = "Loyalty Points vs. Website Visits")
+
+ao5_p4 <- ggplot(ao5_data, aes(PagesPerVisit, LoyaltyPoints)) +
+  geom_point(alpha = 0.3, color = "#2e75b6") +
+  geom_smooth(method = "lm", se = FALSE, color = "#1f3864") +
+  labs(title = "Loyalty Points vs. Pages per Visit")
+
+(ao5_p1 + ao5_p2) / (ao5_p3 + ao5_p4)
+```
+
+```{r}
+#| label: ao5-corr
+#| fig-width: 7
+#| fig-height: 6
+
+ao5_data |>
+  select(where(is.numeric)) |>
+  cor() |>
+  as.data.frame() |>
+  rownames_to_column("var1") |>
+  pivot_longer(-var1, names_to = "var2", values_to = "corr") |>
+  ggplot(aes(var1, var2, fill = corr)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "#c00000", mid = "white", high = "#1f3864", midpoint = 0) +
+  labs(title = "Correlation Matrix — On-Site Behavior & Loyalty", x = NULL, y = NULL) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+- Correlations between `LoyaltyPoints` and every on-site/engagement variable are effectively zero (all |r| < 0.02: `TimeOnSite` −0.011, `PagesPerVisit` −0.013, `WebsiteVisits` 0.003, `SocialShares` −0.005)
+- The scatterplots show flat clouds with no visible linear or curved trend for any predictor
+- This is worth flagging early: on-site behavior and social advocacy do **not** show an obvious raw association with `LoyaltyPoints` in this sample — the model-fitting step below tests whether a combination of variables (or a non-linear model) can pick up a relationship the simple correlations miss
+
+## AO5: Model Fitting
+
+```{r}
+#| label: ao5-fit
+
+set.seed(2026)
+
+# --- Data splitting ---
+ao5_split <- initial_split(ao5_data, prop = 0.8)
+ao5_train <- training(ao5_split)
+ao5_test  <- testing(ao5_split)
+ao5_folds <- vfold_cv(ao5_train, v = 5)
+
+# --- Recipe ---
+ao5_recipe <- recipe(LoyaltyPoints ~ ., data = ao5_train) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_numeric_predictors())
+
+# --- Model specifications ---
+ao5_spec_lm <- linear_reg() |>
+  set_engine("lm") |>
+  set_mode("regression")
+
+ao5_spec_enet <- linear_reg(penalty = tune(), mixture = tune()) |>  # elastic net
+  set_engine("glmnet") |>
+  set_mode("regression")
+
+ao5_spec_rf <- rand_forest(trees = 500, mtry = tune(), min_n = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
+  set_mode("regression")
+
+# --- Workflows ---
+ao5_wf_lm   <- workflow() |> add_recipe(ao5_recipe) |> add_model(ao5_spec_lm)
+ao5_wf_enet <- workflow() |> add_recipe(ao5_recipe) |> add_model(ao5_spec_enet)
+ao5_wf_rf   <- workflow() |> add_recipe(ao5_recipe) |> add_model(ao5_spec_rf)
+
+# --- Tuning ---
+ao5_enet_res <- tune_grid(ao5_wf_enet, resamples = ao5_folds, grid = 10,
+                           metrics = metric_set(rmse))
+ao5_rf_res   <- tune_grid(ao5_wf_rf, resamples = ao5_folds, grid = 5,
+                           metrics = metric_set(rmse))
+
+# --- Finalize + fit ---
+ao5_fit_lm   <- fit(ao5_wf_lm, data = ao5_train)
+ao5_fit_enet <- finalize_workflow(ao5_wf_enet, select_best(ao5_enet_res, metric = "rmse")) |>
+  fit(data = ao5_train)
+ao5_fit_rf   <- finalize_workflow(ao5_wf_rf, select_best(ao5_rf_res, metric = "rmse")) |>
+  fit(data = ao5_train)
+```
+
+## AO5: Prediction & Model Evaluation
+
+```{r}
+#| label: ao5-eval
+
+ao5_reg_metrics <- metric_set(rmse, rsq, mae)
+
+ao5_results <- bind_rows(
+  augment(ao5_fit_lm,   new_data = ao5_test) |> mutate(model = "Linear Regression"),
+  augment(ao5_fit_enet, new_data = ao5_test) |> mutate(model = "Elastic Net"),
+  augment(ao5_fit_rf,   new_data = ao5_test) |> mutate(model = "Random Forest")
+)
+
+ao5_metrics <- ao5_results |>
+  group_by(model) |>
+  ao5_reg_metrics(truth = LoyaltyPoints, estimate = .pred)
+
+ao5_metrics
+
+ggplot(ao5_results, aes(.pred, LoyaltyPoints)) +
+  geom_point(alpha = 0.3) +
+  geom_abline(linetype = "dashed", color = "red") +
+  facet_wrap(~model) +
+  labs(title = "Predicted vs. Actual Loyalty Points")
+```
+
+- All three models perform essentially the same as guessing the mean of `LoyaltyPoints` for every customer: RMSE ≈ 1,440 points, MAE ≈ 1,245 points, and **R² is at or below zero** (Linear Regression R² ≈ −0.005, Elastic Net R² ≈ 0.000, Random Forest R² ≈ −0.02)
+- An R² at/below zero means the models explain none of the variance in `LoyaltyPoints` — they do no better (Random Forest slightly worse, due to overfitting noise) than a naive baseline
+- The predicted-vs-actual plot should show a flat horizontal band of predictions around the mean, with no diagonal alignment to the actual values
+- **Takeaway for RO5:** in this sample, on-site engagement behavior and social advocacy do not measurably predict `LoyaltyPoints`
+
+## AO5: Interpretation
+
+```{r}
+#| label: ao5-interpret
+#| fig-width: 8
+#| fig-height: 4.5
+
+# Variable importance — which on-site/advocacy behaviors matter most
+ao5_fit_rf |> extract_fit_parsnip() |> vip(num_features = 10)
+
+# Coefficients from the linear model (direction & magnitude of relationships)
+ao5_fit_lm |> tidy() |> arrange(desc(abs(estimate)))
+```
+
+```{r}
+#| label: ao5-pdp
+#| fig-width: 9
+#| fig-height: 4.5
+
+ao5_explainer <- explain_tidymodels(
+  ao5_fit_rf,
+  data = ao5_train |> select(-LoyaltyPoints),
+  y = ao5_train$LoyaltyPoints,
+  verbose = FALSE
+)
+
+pdp_time    <- model_profile(ao5_explainer, variables = "TimeOnSite")
+pdp_shares  <- model_profile(ao5_explainer, variables = "SocialShares")
+
+(plot(pdp_time) + labs(title = "PDP: Time on Site")) +
+  (plot(pdp_shares) + labs(title = "PDP: Social Shares"))
+```
+
+- Random Forest variable importance ranks `PagesPerVisit`, `TimeOnSite`, `Income`, and `SocialShares` highest, but this reflects relative importance *within a model that has no real predictive power* (R² ≈ −0.02) — it should not be read as evidence these variables actually drive loyalty
+- The linear model's largest coefficients belong to `CampaignChannel` and `Gender`, not the on-site/advocacy variables central to RO5, and none of the on-site coefficients are large relative to their scale
+- The PDP lines for `TimeOnSite` and `SocialShares` should come out nearly flat, consistent with the near-zero correlations and R² found above — there is no meaningful non-linear relationship either
+
+## AO5: Summary Findings
+
+::: incremental
+- On-site engagement (`TimeOnSite`, `PagesPerVisit`, `WebsiteVisits`) shows **no meaningful relationship** with `LoyaltyPoints` in this dataset — correlations are all under 0.02 in magnitude
+- Social media advocacy (`SocialShares`) similarly shows **no independent relationship** with loyalty, before or after controlling for on-site behavior and demographics
+- All three models (Linear Regression, Elastic Net, Random Forest) perform at or worse than a naive mean-prediction baseline (R² ≤ 0), so none is meaningfully "best" — this is a **null result**, not a modeling failure to fix
+- **Business implication:** `LoyaltyPoints`, as recorded in this dataset, does not appear to be driven by on-site behavior or social advocacy — before investing in on-site experience changes to grow loyalty, the business should verify how `LoyaltyPoints` is actually assigned (e.g., a points-per-purchase program) and consider testing a more direct loyalty measure (repeat purchase rate, NPS, tenure) against engagement behavior
+:::
+:::
+:::
+
+# Appendix
+
+## Appendix
+
+- **GitHub Repo:** [TODO — paste link]
+- **Presentation Slides:** [TODO — paste Quarto Pub / GitHub Pages link]
+- **Deployed Model (Shiny App / Vertiver):** [TODO — paste URL]
+
+## Thank You / Q&A
+
+::: {style="text-align: center; margin-top: 20%;"}
+# Questions?
+
+:::
