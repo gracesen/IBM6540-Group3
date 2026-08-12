@@ -94,7 +94,7 @@ glimpse(raw_data)
 
 - **Population:** Customers exposed to the company's digital marketing campaigns
 - **Sample:** `r format(nrow(raw_data), big.mark = ",")` customers, `r ncol(raw_data)` variables
-- **Sampling frame / period:** TODO (fill in if known — e.g., campaign dates, region)
+- **Sampling frame / period:** The dataset does not provide a specific campaign period or geographic region.
 
 ## Data Cleaning
 
@@ -153,7 +153,9 @@ p3 + p4
 ```
 
 - Overall conversion rate: `r scales::percent(mean(campaign_data$Conversion == "Yes"))` (class-imbalanced — relevant for classification AOs)
-- TODO: add 2–3 bullet takeaways describing the sample (age range, income range, channel mix, etc.)
+- The sample includes customers across a wide range of ages and income levels.
+- Customers were exposed to five digital marketing channels: Social Media, Email, PPC, Referral, and SEO.
+- The overall conversion rate is approximately **87.7%**, indicating a strong class imbalance that should be considered when evaluating classification models.
 
 <!-- =================================================================== -->
 <!-- AO1 — left blank for Member 1 to fill in                            -->
@@ -2013,14 +2015,38 @@ ao2_fit_rf |> extract_fit_parsnip() |> vip(num_features = 10)
   conversion outcomes
 :::
 
+# Conclusion
 
-# Appendix
+## Key Findings
+
+- **Campaign type mattered more than channel:** Conversion-focused campaigns had the highest conversion rates.
+- **Customer behavior was useful for prediction:** Engagement, previous purchases, loyalty, and website activity contributed to conversion prediction.
+- **Demographics had limited predictive value:** Age, gender, and income were weaker predictors.
+- **XGBoost performed best:** CV ROC AUC = **0.818** and test ROC AUC = **0.844**.
+- **Class imbalance mattered:** About **88%** of customers converted, so accuracy alone was not sufficient.
+
+## Recommendations for Businesses
+
+- **Focus on customer behavior:** Use engagement and purchase history to support customer targeting.
+- **Consider campaign type:** Conversion-focused campaigns showed stronger conversion results.
+- **Do not rely on channel alone:** Also consider cost, reach, and audience fit.
+- **Use predictive models for targeting:** XGBoost can combine multiple customer and campaign factors.
+- **Evaluate models beyond accuracy:** Consider ROC AUC, sensitivity, and specificity.
+
+## Limitations and Directions for Future Research
+
+- **`Conversion` is not clearly defined:** The dataset does not specify what customer action counts as a conversion.
+- **The outcome is imbalanced:** Non-converters were more difficult to identify.
+- **Time and location are not provided:** The dataset does not specify a campaign period or geographic region.
+- **The results are not causal:** The analysis identifies associations and predictive patterns.
+- **The findings come from one dataset:** Future research should test other datasets and customer populations.
+- **Future research should clearly define conversion** and explore ways to improve prediction of non-converters.
+
 
 ## Appendix
 
 - **GitHub Repo:** [TODO — paste link]
 - **Presentation Slides:** [TODO — paste Quarto Pub / GitHub Pages link]
-- **Deployed Model (Shiny App / Vertiver):** [TODO — paste URL]
 
 ## Thank You / Q&A
 

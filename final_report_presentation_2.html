@@ -337,7 +337,7 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
 <ul>
 <li><strong>Population:</strong> Customers exposed to the company’s digital marketing campaigns</li>
 <li><strong>Sample:</strong> 8,000 customers, 20 variables</li>
-<li><strong>Sampling frame / period:</strong> TODO (fill in if known — e.g., campaign dates, region)</li>
+<li><strong>Sampling frame / period:</strong> The dataset does not provide a specific campaign period or geographic region.</li>
 </ul>
 </section>
 <section id="data-cleaning" class="slide level2">
@@ -654,7 +654,9 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
 
 <img data-src="final_report_presentation_2_files/figure-revealjs/sample-char-2-1.png" width="864" class="r-stretch"><ul>
 <li>Overall conversion rate: 88% (class-imbalanced — relevant for classification AOs)</li>
-<li>TODO: add 2–3 bullet takeaways describing the sample (age range, income range, channel mix, etc.)</li>
+<li>The sample includes customers across a wide range of ages and income levels.</li>
+<li>Customers were exposed to five digital marketing channels: Social Media, Email, PPC, Referral, and SEO.</li>
+<li>The overall conversion rate is approximately <strong>87.7%</strong>, indicating a strong class imbalance that should be considered when evaluating classification models.</li>
 </ul>
 <!-- =================================================================== -->
 <!-- AO1 — left blank for Member 1 to fill in                            -->
@@ -1772,16 +1774,46 @@ X-squared = 84.454, df = 3, p-value &lt; 2.2e-16</code></pre>
 </ul>
 </section></section>
 <section>
-<section id="appendix" class="title-slide slide level1 center">
-<h1>Appendix</h1>
+<section id="conclusion" class="title-slide slide level1 center">
+<h1>Conclusion</h1>
 
 </section>
-<section id="appendix-1" class="slide level2">
+<section id="key-findings" class="slide level2">
+<h2>Key Findings</h2>
+<ul>
+<li><strong>Campaign type mattered more than channel:</strong> Conversion-focused campaigns had the highest conversion rates.</li>
+<li><strong>Customer behavior was useful for prediction:</strong> Engagement, previous purchases, loyalty, and website activity contributed to conversion prediction.</li>
+<li><strong>Demographics had limited predictive value:</strong> Age, gender, and income were weaker predictors.</li>
+<li><strong>XGBoost performed best:</strong> CV ROC AUC = <strong>0.818</strong> and test ROC AUC = <strong>0.844</strong>.</li>
+<li><strong>Class imbalance mattered:</strong> About <strong>88%</strong> of customers converted, so accuracy alone was not sufficient.</li>
+</ul>
+</section>
+<section id="recommendations-for-businesses" class="slide level2">
+<h2>Recommendations for Businesses</h2>
+<ul>
+<li><strong>Focus on customer behavior:</strong> Use engagement and purchase history to support customer targeting.</li>
+<li><strong>Consider campaign type:</strong> Conversion-focused campaigns showed stronger conversion results.</li>
+<li><strong>Do not rely on channel alone:</strong> Also consider cost, reach, and audience fit.</li>
+<li><strong>Use predictive models for targeting:</strong> XGBoost can combine multiple customer and campaign factors.</li>
+<li><strong>Evaluate models beyond accuracy:</strong> Consider ROC AUC, sensitivity, and specificity.</li>
+</ul>
+</section>
+<section id="limitations-and-directions-for-future-research" class="slide level2">
+<h2>Limitations and Directions for Future Research</h2>
+<ul>
+<li><strong><code>Conversion</code> is not clearly defined:</strong> The dataset does not specify what customer action counts as a conversion.</li>
+<li><strong>The outcome is imbalanced:</strong> Non-converters were more difficult to identify.</li>
+<li><strong>Time and location are not provided:</strong> The dataset does not specify a campaign period or geographic region.</li>
+<li><strong>The results are not causal:</strong> The analysis identifies associations and predictive patterns.</li>
+<li><strong>The findings come from one dataset:</strong> Future research should test other datasets and customer populations.</li>
+<li><strong>Future research should clearly define conversion</strong> and explore ways to improve prediction of non-converters.</li>
+</ul>
+</section>
+<section id="appendix" class="slide level2">
 <h2>Appendix</h2>
 <ul>
 <li><strong>GitHub Repo:</strong> [TODO — paste link]</li>
 <li><strong>Presentation Slides:</strong> [TODO — paste Quarto Pub / GitHub Pages link]</li>
-<li><strong>Deployed Model (Shiny App / Vertiver):</strong> [TODO — paste URL]</li>
 </ul>
 </section>
 <section id="thank-you-qa" class="slide level2">
