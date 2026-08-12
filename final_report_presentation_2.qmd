@@ -5,7 +5,7 @@ author:
   - "Member 1 Name"
   - "Member 2 Name"
   - "Member 3 Name"
-  - "Member 4 Name"
+  - "Sandy Zhu"
   - "Jungmin Woo"
 date: today
 format:
@@ -324,7 +324,7 @@ blank
 
 :::
 
-## AO4: Data Wrangling & Visualization
+## AO4:Customer Engagement, Purchase Behavior, and Marketing Outcomes
 
 blank
 
