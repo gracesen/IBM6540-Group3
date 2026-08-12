@@ -55,10 +55,10 @@ Digital marketing teams use multiple campaign channels and campaign strategies t
 
 ::: incremental
 - **RO1:** To analyze how different marketing channels and campaign types affect customer conversion. — linked to AO1
-- **RO2:** To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
+- **RO2:** Impact of Campaign Channel and Type on Customer Conversion
 - **RO3:** To examine whether customer demographic characteristics influence the likelihood of digital marketing conversion.
 - **RO4:** To evaluate how customer interaction and previous purchasing behavior relate to short-term marketing response and customer conversion, and to identify the most important behavioral drivers of conversion.
-- **RO5:** Impact of Campaign Channel and Type on Customer Conversion
+- **RO5:** To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
 :::
 
 ## Importance of the Research
@@ -2050,8 +2050,8 @@ Overall, XGBoost provided the strongest predictive performance. The interpretati
 
 ## Appendix
 
-- **GitHub Repo:** [TODO — paste link]
-- **Presentation Slides:** [TODO — paste Quarto Pub / GitHub Pages link]
+- **GitHub Repo:** <https://github.com/gracesen/IBM6540-Group3>
+- **Presentation Slides:** <https://gracesen.github.io/IBM6540-Group3/final_report_presentation_2.html>
 
 ## Thank You / Q&A
 
