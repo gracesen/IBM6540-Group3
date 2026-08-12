@@ -69,7 +69,7 @@ execute:
 - **RO2:** TODO — linked to AO2
 - **RO3:** TODO — linked to AO3
 - **RO4:** To evaluate how customer interaction and previous purchasing behavior relate to short-term marketing response and customer conversion, and to identify the most important behavioral drivers of conversion.
-- **RO5:** On-Site Engagement and Customer Loyalty Relationship — To examine how customer behavior patterns inside the website relate to their actual brand loyalty and social media advocacy. — linked to AO5
+- **RO5:** Impact of Campaign Channel and Type on Customer Conversion
 :::
 
 ## Importance of the Research
@@ -345,13 +345,215 @@ blank
 blank
 
 <!-- =================================================================== -->
-<!-- AO5 — On-Site Engagement & Customer Loyalty (Regression)            -->
-<!-- RO5: To examine how customer behavior patterns inside the website   -->
-<!-- relate to their actual brand loyalty and social media advocacy.    -->
+<!-- AO5 — Impact of Campaign Channel and Type on Customer Conversion    -->
 <!-- =================================================================== -->
 
-# Analytics Objective 5 — **
 
+# Analytics Objective 5 — *Jungmin Woo*
+
+## AO5: Campaign Performance {.smaller}
+
+> RO5: Analyze the impact of marketing channels and campaign types on
+> customer conversion.
+
+- **IV (predictors):** `CampaignChannel`, `CampaignType` (both categorical)
+- **DV (target):** `Conversion` (binary — Yes / No)
+- **Problem type:** Classification
+- Only these two categorical variables are used as predictors, so this AO
+  isolates the effect of *channel* and *campaign type* on conversion,
+  independent of demographic or on-site behavior variables
+
+## AO5: Machine Learning Methods to be Used
+
+::: {.panel-tabset}
+
+### Regression-Focused Methods
+- Not applicable (outcome is categorical)
+
+### Classification-Focused Methods
+- Logistic Regression
+- Decision Tree (classification)
+
+### Ensembles
+- Random Forest (classification)
+
+:::
+
+## AO5: Data Wrangling & Visualization
+
+```{r}
+#| label: ao2-wrangle
+
+# Missing-value check on the relevant columns
+campaign_data |>
+  select(CampaignChannel, CampaignType, Conversion) |>
+  summarise(across(everything(), ~ sum(is.na(.))))
+
+# Baseline conversion rate by Channel x Type
+ao2_baseline <- campaign_data |>
+  group_by(CampaignChannel, CampaignType) |>
+  summarise(
+    ConversionRate = mean(Conversion == "Yes"),
+    N = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(ConversionRate))
+
+ao2_baseline
+```
+
+```{r}
+#| label: ao2-viz
+#| fig-width: 9
+#| fig-height: 5
+
+ggplot(ao2_baseline, aes(x = CampaignChannel, y = ConversionRate, fill = CampaignType)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Conversion Rate by Channel, Segmented by Campaign Type",
+    x = "Campaign Channel", y = "Conversion Rate", fill = "Campaign Type"
+  ) +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+- No missing values in `CampaignChannel`, `CampaignType`, or `Conversion`
+- The bar chart shows very little spread **across channels** within each campaign type (bars of the same color are roughly the same height), but a clear gap **across campaign types**: `CampaignType == "Conversion"` sits noticeably higher (~92–94%) than `Awareness`, `Consideration`, or `Retention` (~84–88%) in every channel
+- This suggests campaign *type* may matter more than campaign *channel* for conversion — tested formally below
+
+## AO5: Model Fitting
+
+```{r}
+#| label: ao2-fit
+
+set.seed(2026)
+
+ao2_data <- campaign_data |>
+  select(CampaignChannel, CampaignType, Conversion)
+
+# --- Data splitting ---
+ao2_split <- initial_split(ao2_data, prop = 0.8, strata = Conversion)
+ao2_train <- training(ao2_split)
+ao2_test  <- testing(ao2_split)
+ao2_folds <- vfold_cv(ao2_train, v = 5, strata = Conversion)
+
+# --- Recipe ---
+ao2_recipe <- recipe(Conversion ~ CampaignChannel + CampaignType, data = ao2_train) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+# --- Model specifications ---
+ao2_spec_glm <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification")
+
+ao2_spec_tree <- decision_tree(cost_complexity = tune(), tree_depth = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+
+ao2_spec_rf <- rand_forest(trees = 500, min_n = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
+  set_mode("classification")
+
+# --- Workflows ---
+ao2_wf_glm  <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_glm)
+ao2_wf_tree <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_tree)
+ao2_wf_rf   <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_rf)
+
+# --- Tuning ---
+ao2_tree_res <- tune_grid(ao2_wf_tree, resamples = ao2_folds, grid = 5,
+                           metrics = metric_set(roc_auc))
+ao2_rf_res   <- tune_grid(ao2_wf_rf, resamples = ao2_folds, grid = 5,
+                           metrics = metric_set(roc_auc))
+
+# --- Finalize + fit ---
+ao2_fit_glm  <- fit(ao2_wf_glm, data = ao2_train)
+ao2_fit_tree <- finalize_workflow(ao2_wf_tree, select_best(ao2_tree_res, metric = "roc_auc")) |>
+  fit(data = ao2_train)
+ao2_fit_rf   <- finalize_workflow(ao2_wf_rf, select_best(ao2_rf_res, metric = "roc_auc")) |>
+  fit(data = ao2_train)
+```
+
+## AO5: Prediction & Model Evaluation
+
+```{r}
+#| label: ao2-eval
+
+ao2_class_metrics <- metric_set(accuracy, roc_auc, f_meas)
+
+ao2_results <- bind_rows(
+  augment(ao2_fit_glm,  new_data = ao2_test) |> mutate(model = "Logistic Regression"),
+  augment(ao2_fit_tree, new_data = ao2_test) |> mutate(model = "Decision Tree"),
+  augment(ao2_fit_rf,   new_data = ao2_test) |> mutate(model = "Random Forest")
+)
+
+ao2_metrics <- ao2_results |>
+  group_by(model) |>
+  ao2_class_metrics(truth = Conversion, estimate = .pred_class, .pred_Yes, event_level = "second")
+
+ao2_metrics
+```
+
+- All three models land at essentially the same accuracy (~87.6%), which
+  matches the overall base rate of `Conversion == "Yes"` in the data — the
+  models are not beating a "always predict Yes" baseline on accuracy alone
+- ROC AUC is low (~0.53–0.54, just above the 0.50 random-guess line),
+  meaning `CampaignChannel` and `CampaignType` alone have only weak
+  discriminative power for *individual-level* conversion, even though the
+  group-level rates in the bar chart differ by type
+- This is a common pattern: a variable can show a real, statistically
+  significant *group-level* effect while still being a weak *individual-level*
+  predictor, because most of the variation in who converts is driven by
+  other factors (behavioral, demographic) not included in this AO by design
+
+## AO5: Interpretation
+
+```{r}
+#| label: ao2-interpret
+#| fig-width: 8
+#| fig-height: 4.5
+
+# Association test: does Channel matter? Does Type matter?
+chisq.test(table(campaign_data$CampaignChannel, campaign_data$Conversion))
+chisq.test(table(campaign_data$CampaignType, campaign_data$Conversion))
+
+# Logistic regression coefficients (log-odds effect of each channel/type)
+ao2_fit_glm |> tidy() |> arrange(p.value)
+
+# Variable importance from Random Forest
+ao2_fit_rf |> extract_fit_parsnip() |> vip(num_features = 10)
+```
+
+- The chi-square test for `CampaignChannel` is **not significant**
+  (χ² ≈ 2.78, p ≈ 0.59) — channel choice alone shows no reliable
+  association with conversion
+- The chi-square test for `CampaignType` **is significant**
+  (χ² ≈ 84.5, p < 0.001) — campaign type is meaningfully associated with
+  conversion, driven mainly by the `"Conversion"` type having a
+  substantially higher rate (~93%) than `Awareness`/`Consideration`/`Retention`
+  (~84–88%)
+- Random Forest variable importance should echo this: dummy variables for
+  `CampaignType` should rank above `CampaignChannel` dummies
+
+## AO5: Summary Findings
+
+::: incremental
+- **Campaign type** has a statistically significant relationship with
+  conversion; **campaign channel** does not, at least on its own
+- The higher conversion rate for `CampaignType == "Conversion"` campaigns
+  is expected by design (these campaigns are explicitly built to drive
+  conversion) but confirms the labeling is consistent with actual outcomes
+- Despite the significant group-level association, channel + type alone
+  give weak individual-level predictive power (ROC AUC ≈ 0.53) — they are
+  not sufficient by themselves to identify which specific customers will
+  convert
+- **Business implication:** channel selection appears interchangeable for
+  conversion purposes in this data, so budget allocation decisions should
+  weigh cost-per-channel and other KPIs rather than assuming any one
+  channel converts better; campaign *type* mix (more bottom-funnel
+  "Conversion"-type campaigns) is the lever more strongly tied to
+  conversion outcomes
+:::
 
 
 # Appendix
