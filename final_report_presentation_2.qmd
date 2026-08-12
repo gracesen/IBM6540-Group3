@@ -68,7 +68,7 @@ execute:
 - **RO1:** TODO — linked to AO1
 - **RO2:** TODO — linked to AO2
 - **RO3:** TODO — linked to AO3
-- **RO4:** To evaluate how customer interaction and previous purchasing behavior influence short-term marketing response and conversion, and to identify the most important behavioral drivers for predicting conversion.
+- **RO4:** To evaluate how customer interaction and previous purchasing behavior relate to short-term marketing response and customer conversion, and to identify the most important behavioral drivers of conversion.
 - **RO5:** On-Site Engagement and Customer Loyalty Relationship — To examine how customer behavior patterns inside the website relate to their actual brand loyalty and social media advocacy. — linked to AO5
 :::
 
