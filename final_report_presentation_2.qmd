@@ -2,7 +2,7 @@
 title: "Digital Marketing Campaign Analytics"
 subtitle: "Group Project Final Report Presentation"
 author:
-  - "Member 1 Name"
+  - "Yushan Huang"
   - "Member 2 Name"
   - "Grace Sen"
   - "Sandy Zhu"
@@ -41,7 +41,7 @@ execute:
 ::: incremental
 1. Introduction
 2. Population / Sample & Sample Characteristics
-3. Analytics Objective 1 — *[Member 1]*
+3. Analytics Objective 1 — *Yushan Huang*-Marketing Channels and Campaign Types
 4. Analytics Objective 2 — *[Member 2]*
 5. Analytics Objective 3 — *Grace Sen* - Customer Demographics and Conversion
 6. Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and Purchase Behavior
@@ -54,18 +54,16 @@ execute:
 
 ## Problem Definition
 
-> TODO: State the business problem in 2–3 sentences. What is the
-> marketing team struggling with (e.g., inefficient ad spend, unclear
-> which channels convert, low email/on-site engagement)?
+Digital marketing teams use multiple campaign channels and campaign strategies to reach customers, but it is not always clear which approaches are most strongly associated with customer conversion. Without data-driven evidence, marketing resources may be allocated to channels or campaign types that do not meaningfully improve conversion outcomes.
 
-- Context: multi-channel digital marketing campaigns (Social Media, Email, PPC, Referral, SEO)
-- The gap: TODO
-- Who is affected / who benefits from solving this: TODO
+- **Context:** The dataset represents multi-channel digital marketing campaigns, including Social Media, Email, PPC, Referral, and SEO.
+- **Business gap:** Marketers need clearer evidence about which campaign characteristics and customer behaviors are associated with successful conversion.
+- **Decision need:** Identify actionable patterns that can support better campaign design, targeting, engagement, and resource allocation.
 
 ## Research Objectives
 
 ::: incremental
-- **RO1:** TODO — linked to AO1
+- **RO1:** To analyze how different marketing channels and campaign types affect customer conversion. — linked to AO1
 - **RO2:** TODO — linked to AO2
 - **RO3:** To examine whether customer demographic characteristics influence the likelihood of digital marketing conversion.
 - **RO4:** To evaluate how customer interaction and previous purchasing behavior relate to short-term marketing response and customer conversion, and to identify the most important behavioral drivers of conversion.
@@ -74,9 +72,11 @@ execute:
 
 ## Importance of the Research
 
-- Business value: TODO (e.g., optimize ad spend allocation, prioritize high-conversion channels, grow on-site experiences that build loyalty)
-- Academic / methodological value: TODO (e.g., comparing regression, classification, and ensemble methods on marketing data)
-- Stakeholders who benefit: TODO
+- **Improve marketing effectiveness:** Understanding the factors associated with conversion can help marketers make more informed decisions about campaign strategy and customer targeting.
+- **Support resource allocation:** Comparing marketing channels and campaign types can reveal whether conversion outcomes differ meaningfully across marketing approaches.
+- **Generate customer insights:** Examining engagement, purchasing behavior, and loyalty-related measures can help explain how customers respond throughout the digital marketing journey.
+- **Apply predictive analytics:** Classification and ensemble methods provide a systematic way to evaluate conversion patterns and assess how useful marketing and behavioral variables are for prediction.
+- **Business stakeholders:** The findings can support marketing managers, campaign planners, and customer analytics teams when designing and evaluating future campaigns.
 
 # Population / Sample
 
@@ -168,46 +168,255 @@ p3 + p4
 <!-- AO1 — left blank for Member 1 to fill in                            -->
 <!-- =================================================================== -->
 
-# Analytics Objective 1 — *[Member 1 Name]*
+# Analytics Objective 1 — *Yushan Huang*
 
-## AO1: blank
+## AO1: Marketing Channels and Campaign Types
 
-blank
+> **RO1:** To analyze how different marketing channels and campaign types affect customer conversion.
+
+- **Target variable:** `Conversion` (No / Yes)
+- **Independent variables:** `CampaignChannel`, `CampaignType`
+- **Problem type:** Binary classification
+- **Business question:** Which marketing channels and campaign types are associated with higher customer conversion?
+- **Analytical focus:** Compare group-level conversion patterns and test whether channel/type alone can predict individual conversion.
 
 ## AO1: Machine Learning Methods to be Used
 
 ::: {.panel-tabset}
 
 ### Regression-Focused Methods
-blank
+- Not used because `Conversion` is a binary outcome.
+- Logistic regression is used as a **classification** model and provides interpretable odds ratios.
 
 ### Classification-Focused Methods
-blank
+- Logistic Regression — interpretable baseline for estimating the direction and magnitude of associations
+- Decision Tree — captures possible non-linear splits and interactions
 
 ### Ensembles
-blank
+- Random Forest — compares an ensemble classifier with simpler models and provides variable importance
 
 :::
 
 ## AO1: Data Wrangling & Visualization
 
-blank
+```{r}
+#| label: ao1-wrangle
+#| fig-width: 10
+#| fig-height: 4.5
+
+# Keep only variables required by RO1
+ao1_data <- campaign_data |>
+  select(CampaignChannel, CampaignType, Conversion) |>
+  drop_na()
+
+# Conversion rates by channel and campaign type
+ao1_channel <- ao1_data |>
+  group_by(CampaignChannel) |>
+  summarise(n = n(), conversion_rate = mean(Conversion == "Yes"), .groups = "drop")
+
+ao1_type <- ao1_data |>
+  group_by(CampaignType) |>
+  summarise(n = n(), conversion_rate = mean(Conversion == "Yes"), .groups = "drop")
+
+p_ao1_channel <- ggplot(ao1_channel,
+                        aes(x = reorder(CampaignChannel, conversion_rate),
+                            y = conversion_rate)) +
+  geom_col(fill = "#2e75b6") +
+  geom_text(aes(label = scales::percent(conversion_rate, accuracy = 0.1)),
+            hjust = -0.1, size = 4) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent,
+                     limits = c(0, 1), expand = expansion(mult = c(0, 0.03))) +
+  labs(title = "Conversion Rate by Marketing Channel", x = NULL, y = "Conversion Rate")
+
+p_ao1_type <- ggplot(ao1_type,
+                     aes(x = reorder(CampaignType, conversion_rate),
+                         y = conversion_rate)) +
+  geom_col(fill = "#1f3864") +
+  geom_text(aes(label = scales::percent(conversion_rate, accuracy = 0.1)),
+            hjust = -0.1, size = 4) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent,
+                     limits = c(0, 1), expand = expansion(mult = c(0, 0.03))) +
+  labs(title = "Conversion Rate by Campaign Type", x = NULL, y = "Conversion Rate")
+
+p_ao1_channel + p_ao1_type
+```
+
+- Overall conversion rate: **`r scales::percent(mean(ao1_data$Conversion == "Yes"), accuracy = 0.1)`**
+- Channel conversion rates are tightly clustered (about **86.8%–88.3%**), suggesting only small raw differences across channels.
+- `Conversion` campaigns have the highest conversion rate (**93.4%**), compared with roughly **85.6%–85.8%** for the other campaign types.
+
+## AO1: Channel × Campaign Type Pattern
+
+```{r}
+#| label: ao1-heatmap
+#| fig-width: 9
+#| fig-height: 5
+
+ao1_combo <- ao1_data |>
+  group_by(CampaignChannel, CampaignType) |>
+  summarise(n = n(), conversion_rate = mean(Conversion == "Yes"), .groups = "drop")
+
+ggplot(ao1_combo, aes(CampaignType, CampaignChannel, fill = conversion_rate)) +
+  geom_tile(color = "white", linewidth = 1) +
+  geom_text(aes(label = scales::percent(conversion_rate, accuracy = 0.1)), size = 4) +
+  scale_fill_gradient(low = "#d9e8f5", high = "#1f3864",
+                      labels = scales::percent, limits = c(0.80, 0.95)) +
+  labs(title = "Conversion Rate by Channel × Campaign Type",
+       x = "Campaign Type", y = "Campaign Channel", fill = "Conversion Rate")
+```
+
+- The strongest combinations are **SEO + Conversion (94.0%)** and **PPC + Conversion (94.0%)**.
+- The `Conversion` campaign type is consistently the highest-performing type across all five channels.
+- This pattern suggests that **campaign purpose/type is more strongly associated with conversion than channel choice** in this sample.
 
 ## AO1: Model Fitting
 
-blank
+```{r}
+#| label: ao1-fit
+
+set.seed(2026)
+
+# Stratified 80/20 split preserves the Conversion class distribution
+ao1_split <- initial_split(ao1_data, prop = 0.8, strata = Conversion)
+ao1_train <- training(ao1_split)
+ao1_test  <- testing(ao1_split)
+ao1_folds <- vfold_cv(ao1_train, v = 5, strata = Conversion)
+
+# Dummy encoding for categorical predictors
+ao1_recipe <- recipe(Conversion ~ CampaignChannel + CampaignType, data = ao1_train) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
+
+# Model specifications
+ao1_spec_logit <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification")
+
+ao1_spec_tree <- decision_tree(cost_complexity = tune(), tree_depth = tune(), min_n = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
+
+ao1_spec_rf <- rand_forest(trees = 500, mtry = tune(), min_n = tune()) |>
+  set_engine("ranger", importance = "permutation", probability = TRUE) |>
+  set_mode("classification")
+
+# Workflows
+ao1_wf_logit <- workflow() |> add_recipe(ao1_recipe) |> add_model(ao1_spec_logit)
+ao1_wf_tree  <- workflow() |> add_recipe(ao1_recipe) |> add_model(ao1_spec_tree)
+ao1_wf_rf    <- workflow() |> add_recipe(ao1_recipe) |> add_model(ao1_spec_rf)
+
+# Tune tree and random forest using ROC AUC rather than accuracy
+ao1_tree_res <- tune_grid(
+  ao1_wf_tree, resamples = ao1_folds, grid = 10,
+  metrics = metric_set(roc_auc)
+)
+
+ao1_rf_res <- tune_grid(
+  ao1_wf_rf, resamples = ao1_folds, grid = 10,
+  metrics = metric_set(roc_auc)
+)
+
+# Final fits
+ao1_fit_logit <- fit(ao1_wf_logit, data = ao1_train)
+ao1_fit_tree <- finalize_workflow(
+  ao1_wf_tree, select_best(ao1_tree_res, metric = "roc_auc")
+) |> fit(data = ao1_train)
+ao1_fit_rf <- finalize_workflow(
+  ao1_wf_rf, select_best(ao1_rf_res, metric = "roc_auc")
+) |> fit(data = ao1_train)
+```
+
+- **Split:** 80% training / 20% testing, stratified by `Conversion`
+- **Recipe:** dummy encoding + zero-variance removal
+- **Models:** Logistic Regression, Decision Tree, Random Forest
+- **Primary metric:** ROC AUC, because the outcome is imbalanced (about 88% conversions)
 
 ## AO1: Prediction & Model Evaluation
 
-blank
+```{r}
+#| label: ao1-eval
+#| fig-width: 8
+#| fig-height: 4.5
+
+# Generate class probabilities and predictions
+make_ao1_preds <- function(fit_obj, model_name) {
+  bind_cols(
+    ao1_test,
+    predict(fit_obj, new_data = ao1_test, type = "prob"),
+    predict(fit_obj, new_data = ao1_test, type = "class")
+  ) |>
+    mutate(model = model_name)
+}
+
+ao1_results <- bind_rows(
+  make_ao1_preds(ao1_fit_logit, "Logistic Regression"),
+  make_ao1_preds(ao1_fit_tree,  "Decision Tree"),
+  make_ao1_preds(ao1_fit_rf,    "Random Forest")
+)
+
+ao1_metrics <- ao1_results |>
+  group_by(model) |>
+  summarise(
+    Accuracy = accuracy_vec(Conversion, .pred_class),
+    ROC_AUC = roc_auc_vec(Conversion, .pred_Yes, event_level = "second"),
+    Sensitivity = sens_vec(Conversion, .pred_class, event_level = "second"),
+    Specificity = spec_vec(Conversion, .pred_class, event_level = "second"),
+    .groups = "drop"
+  )
+
+ao1_metrics
+
+# ROC curves
+ao1_results |>
+  group_by(model) |>
+  roc_curve(Conversion, .pred_Yes, event_level = "second") |>
+  autoplot() +
+  labs(title = "ROC Curves — AO1 Classification Models")
+```
+
+- A naive model that predicts **"Yes" for everyone** already achieves about **87.7% accuracy**, so accuracy alone is misleading.
+- The more informative comparison is **ROC AUC**, which tests whether the models can distinguish converters from non-converters across thresholds.
+- If ROC AUC remains close to 0.50–0.60, `CampaignChannel` and `CampaignType` alone have **limited individual-level predictive power**, even though campaign type shows a clear group-level pattern.
 
 ## AO1: Interpretation
 
-blank
+```{r}
+#| label: ao1-interpret
+#| fig-width: 9
+#| fig-height: 4.5
+
+# Logistic-regression odds ratios: values > 1 indicate higher odds of conversion
+# relative to the reference category.
+ao1_odds <- ao1_fit_logit |>
+  extract_fit_parsnip() |>
+  tidy(exponentiate = TRUE, conf.int = TRUE) |>
+  filter(term != "(Intercept)") |>
+  arrange(desc(estimate))
+
+ao1_odds
+
+# Random Forest variable importance (interpret only alongside model performance)
+ao1_fit_rf |>
+  extract_fit_parsnip() |>
+  vip(num_features = 10) +
+  labs(title = "AO1 Random Forest Variable Importance")
+```
+
+- Logistic-regression odds ratios show the direction and relative size of differences after accounting for the other predictor.
+- The largest practical contrast is expected for **`CampaignType = Conversion`**, consistent with its 93.4% raw conversion rate.
+- Random Forest importance can show whether campaign type or channel contributes more to prediction, but importance should be interpreted cautiously if ROC AUC is weak.
 
 ## AO1: Summary Findings
 
-blank
+::: incremental
+- **Campaign type matters more than marketing channel:** conversion rates across channels are very similar (**86.8%–88.3%**), while campaign types show a wider difference.
+- **Conversion-focused campaigns perform best:** their conversion rate is approximately **93.4%**, versus about **85.6%–85.8%** for Awareness, Consideration, and Retention campaigns.
+- The pattern is consistent across channels: every channel performs best when the campaign type is `Conversion`; **SEO + Conversion (94.0%)** and **PPC + Conversion (94.0%)** are the strongest observed combinations.
+- **Predictive caution:** because the overall conversion rate is already **87.7%**, high accuracy can be achieved by predicting the majority class. ROC AUC is therefore more useful for judging true discrimination.
+- **Business implication:** prioritize the design and targeting of conversion-focused campaigns rather than reallocating budget solely on the basis of channel. Channel decisions should also consider cost, reach, and audience fit.
+:::
 
 <!-- =================================================================== -->
 <!-- AO2 — left blank for Member 2 to fill in                            -->
