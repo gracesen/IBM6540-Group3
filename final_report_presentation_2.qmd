@@ -45,7 +45,7 @@ execute:
 4. Analytics Objective 2 — *[Member 2]*
 5. Analytics Objective 3 — *[Member 3]*
 6. Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and Purchase Behavior
-7. Analytics Objective 5 — *Jungmin Woo* — 
+7. Analytics Objective 5 — *Jungmin Woo* — Impact of Campaign Channel and Type on Customer Conversion
 8. Conclusion
 9. Appendix
 :::
