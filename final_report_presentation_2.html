@@ -242,11 +242,11 @@ Jungmin Woo
 <ol type="1">
 <li class="fragment">Introduction</li>
 <li class="fragment">Population / Sample &amp; Sample Characteristics</li>
-<li class="fragment">Analytics Objective 1 — <em>Yushan Huang</em>-Marketing Channels and Campaign Types</li>
-<li class="fragment">Analytics Objective 2 — <em>Sora Hosoda</em> - Predictive Analytics</li>
+<li class="fragment">Analytics Objective 1 — <em>Yushan Huang</em> - Marketing Channels and Campaign Types</li>
+<li class="fragment">Analytics Objective 2 — <em>Jungmin Woo</em> - Campaign Performance</li>
 <li class="fragment">Analytics Objective 3 — <em>Grace Sen</em> - Customer Demographics and Conversion</li>
 <li class="fragment">Analytics Objective 4 — <em>Sandy Zhu</em> - Customer Interaction and Purchase Behavior</li>
-<li class="fragment">Analytics Objective 5 — <em>Jungmin Woo</em> — Impact of Campaign Channel and Type on Customer Conversion</li>
+<li class="fragment">Analytics Objective 5 — <em>Sora Hosoda</em> - Predictive Analytics</li>
 <li class="fragment">Conclusion</li>
 <li class="fragment">Appendix</li>
 </ol>
@@ -791,12 +791,611 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
 <!-- =================================================================== -->
 </section></section>
 <section>
-<section id="analytics-objective-2-sora-hosoda" class="title-slide slide level1 center">
-<h1>Analytics Objective 2 — <em>Sora Hosoda</em></h1>
+<section id="analytics-objective-2-jungmin-woo" class="title-slide slide level1 center">
+<h1>Analytics Objective 2 — <em>Jungmin Woo</em></h1>
 
 </section>
-<section id="ao2-predictive-analytics" class="slide level2">
-<h2>AO2: Predictive Analytics</h2>
+<section id="ao2-campaign-performance" class="slide level2 smaller">
+<h2>AO2: Campaign Performance</h2>
+<blockquote>
+<p>RO2: Analyze the impact of marketing channels and campaign types on customer conversion.</p>
+</blockquote>
+<ul>
+<li><strong>IV (predictors):</strong> <code>CampaignChannel</code>, <code>CampaignType</code> (both categorical)</li>
+<li><strong>DV (target):</strong> <code>Conversion</code> (binary — Yes / No)</li>
+<li><strong>Problem type:</strong> Classification</li>
+<li>Only these two categorical variables are used as predictors, so this AO isolates the effect of <em>channel</em> and <em>campaign type</em> on conversion, independent of demographic or on-site behavior variables</li>
+</ul>
+</section>
+<section id="ao2-machine-learning-methods-to-be-used" class="slide level2">
+<h2>AO2: Machine Learning Methods to be Used</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Regression-Focused Methods</a></li><li><a href="#tabset-2-2">Classification-Focused Methods</a></li><li><a href="#tabset-2-3">Ensembles</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<ul>
+<li>Not applicable (outcome is categorical)</li>
+</ul>
+</div>
+<div id="tabset-2-2">
+<ul>
+<li>Logistic Regression</li>
+<li>Decision Tree (classification)</li>
+</ul>
+</div>
+<div id="tabset-2-3">
+<ul>
+<li>Random Forest (classification)</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="ao2-data-wrangling-visualization" class="slide level2">
+<h2>AO2: Data Wrangling &amp; Visualization</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  CampaignChannel CampaignType Conversion
+            &lt;int&gt;        &lt;int&gt;      &lt;int&gt;
+1               0            0          0</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 20 × 4
+   CampaignChannel CampaignType  ConversionRate     N
+   &lt;fct&gt;           &lt;fct&gt;                  &lt;dbl&gt; &lt;int&gt;
+ 1 SEO             Conversion             0.940   402
+ 2 PPC             Conversion             0.940   447
+ 3 Email           Conversion             0.933   416
+ 4 Referral        Conversion             0.930   445
+ 5 Social Media    Conversion             0.924   367
+ 6 Referral        Awareness              0.884   431
+ 7 PPC             Consideration          0.869   404
+ 8 SEO             Retention              0.866   389
+ 9 Social Media    Retention              0.862   370
+10 Referral        Retention              0.860   436
+11 PPC             Awareness              0.859   412
+12 PPC             Retention              0.857   392
+13 Email           Consideration          0.856   403
+14 Referral        Consideration          0.855   407
+15 Social Media    Consideration          0.849   405
+16 SEO             Awareness              0.849   390
+17 SEO             Consideration          0.848   369
+18 Email           Retention              0.844   360
+19 Email           Awareness              0.841   378
+20 Social Media    Awareness              0.841   377</code></pre>
+</div>
+</div>
+
+<img data-src="final_report_presentation_2_files/figure-revealjs/ao2-viz-1.png" width="864" class="r-stretch"><ul>
+<li>No missing values in <code>CampaignChannel</code>, <code>CampaignType</code>, or <code>Conversion</code></li>
+<li>The bar chart shows very little spread <strong>across channels</strong> within each campaign type (bars of the same color are roughly the same height), but a clear gap <strong>across campaign types</strong>: <code>CampaignType == "Conversion"</code> sits noticeably higher (~92–94%) than <code>Awareness</code>, <code>Consideration</code>, or <code>Retention</code> (~84–88%) in every channel</li>
+<li>This suggests campaign <em>type</em> may matter more than campaign <em>channel</em> for conversion — tested formally below</li>
+</ul>
+</section>
+<section id="ao2-model-fitting" class="slide level2">
+<h2>AO2: Model Fitting</h2>
+</section>
+<section id="ao2-prediction-model-evaluation" class="slide level2">
+<h2>AO2: Prediction &amp; Model Evaluation</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 4
+  model               .metric  .estimator .estimate
+  &lt;chr&gt;               &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 Decision Tree       accuracy binary         0.876
+2 Logistic Regression accuracy binary         0.876
+3 Random Forest       accuracy binary         0.876
+4 Decision Tree       f_meas   binary         0.934
+5 Logistic Regression f_meas   binary         0.934
+6 Random Forest       f_meas   binary         0.934
+7 Decision Tree       roc_auc  binary         0.5  
+8 Logistic Regression roc_auc  binary         0.554
+9 Random Forest       roc_auc  binary         0.543</code></pre>
+</div>
+</div>
+<ul>
+<li>All three models land at essentially the same accuracy (~87.6%), which matches the overall base rate of <code>Conversion == "Yes"</code> in the data — the models are not beating a “always predict Yes” baseline on accuracy alone</li>
+<li>ROC AUC is low (~0.53–0.54, just above the 0.50 random-guess line), meaning <code>CampaignChannel</code> and <code>CampaignType</code> alone have only weak discriminative power for <em>individual-level</em> conversion, even though the group-level rates in the bar chart differ by type</li>
+<li>This is a common pattern: a variable can show a real, statistically significant <em>group-level</em> effect while still being a weak <em>individual-level</em> predictor, because most of the variation in who converts is driven by other factors (behavioral, demographic) not included in this AO by design</li>
+</ul>
+</section>
+<section id="ao2-interpretation" class="slide level2">
+<h2>AO2: Interpretation</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  table(campaign_data$CampaignChannel, campaign_data$Conversion)
+X-squared = 2.7849, df = 4, p-value = 0.5944</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  table(campaign_data$CampaignType, campaign_data$Conversion)
+X-squared = 84.454, df = 3, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 5
+  term                         estimate std.error statistic  p.value
+  &lt;chr&gt;                           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)                   1.77        0.106   16.7    6.21e-63
+2 CampaignType_Conversion       0.911       0.125    7.28   3.31e-13
+3 CampaignChannel_PPC           0.0864      0.122    0.710  4.78e- 1
+4 CampaignType_Consideration   -0.0429      0.101   -0.426  6.70e- 1
+5 CampaignChannel_Referral      0.0492      0.120    0.410  6.82e- 1
+6 CampaignType_Retention       -0.0280      0.102   -0.276  7.83e- 1
+7 CampaignChannel_Social.Media  0.0179      0.122    0.147  8.83e- 1
+8 CampaignChannel_SEO          -0.00262     0.122   -0.0215 9.83e- 1</code></pre>
+</div>
+
+</div>
+<img data-src="final_report_presentation_2_files/figure-revealjs/ao2-interpret-1.png" width="768" class="r-stretch"><ul>
+<li>The chi-square test for <code>CampaignChannel</code> is <strong>not significant</strong> (χ² ≈ 2.78, p ≈ 0.59) — channel choice alone shows no reliable association with conversion</li>
+<li>The chi-square test for <code>CampaignType</code> <strong>is significant</strong> (χ² ≈ 84.5, p &lt; 0.001) — campaign type is meaningfully associated with conversion, driven mainly by the <code>"Conversion"</code> type having a substantially higher rate (~93%) than <code>Awareness</code>/<code>Consideration</code>/<code>Retention</code> (~84–88%)</li>
+<li>Random Forest variable importance should echo this: dummy variables for <code>CampaignType</code> should rank above <code>CampaignChannel</code> dummies</li>
+</ul>
+</section>
+<section id="ao2-summary-findings" class="slide level2">
+<h2>AO2: Summary Findings</h2>
+<ul>
+<li class="fragment"><strong>Campaign type</strong> has a statistically significant relationship with conversion; <strong>campaign channel</strong> does not, at least on its own</li>
+<li class="fragment">The higher conversion rate for <code>CampaignType == "Conversion"</code> campaigns is expected by design (these campaigns are explicitly built to drive conversion) but confirms the labeling is consistent with actual outcomes</li>
+<li class="fragment">Despite the significant group-level association, channel + type alone give weak individual-level predictive power (ROC AUC ≈ 0.53) — they are not sufficient by themselves to identify which specific customers will convert</li>
+<li class="fragment"><strong>Business implication:</strong> channel selection appears interchangeable for conversion purposes in this data, so budget allocation decisions should weigh cost-per-channel and other KPIs rather than assuming any one channel converts better; campaign <em>type</em> mix (more bottom-funnel “Conversion”-type campaigns) is the lever more strongly tied to conversion outcomes</li>
+</ul>
+<!-- =================================================================== -->
+<!-- AO3 — Customer Demographics and Conversion                            -->
+<!-- =================================================================== -->
+</section></section>
+<section>
+<section id="analytics-objective-3-grace-sen" class="title-slide slide level1 center">
+<h1>Analytics Objective 3 — <em>Grace Sen</em></h1>
+
+</section>
+<section id="do-demographics-help-identify-customers-who-convert" class="slide level2" data-background-color="#1E4D2B">
+<h2>Do demographics help identify customers who convert?</h2>
+<h3 id="analytics-objective-3">Analytics Objective 3</h3>
+<p>Examine whether <strong>age, gender, and income</strong> are associated with—and useful for predicting—customer conversion.</p>
+<div class="objective-line">
+<p><strong>Predictors:</strong> Age · Gender · Income<br>
+<strong>Outcome:</strong> Conversion (binary classification)</p>
+</div>
+<aside class="notes">
+<p>My analytics objective asks whether customer demographics help explain and predict conversion. I use age, gender, and income as predictors and conversion as the binary outcome. The analysis compares an interpretable logistic regression with a nonlinear ensemble model.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-data-wrangling-visualization-sample-and-outcome" class="slide level2">
+<h2>AO3: Data Wrangling &amp; Visualization — Sample and Outcome</h2>
+<div class="columns">
+<div class="column" style="width:48%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-1-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:48%;">
+<ul>
+<li><strong>8000 customers</strong></li>
+<li><strong>0 missing values</strong> in AO3 variables</li>
+<li>Conversion rate: 87.6%</li>
+</ul>
+<div class="key-message">
+<p>Accuracy alone is misleading: predicting “Converted” for everyone already produces high accuracy.</p>
+</div>
+<p><strong>Primary metrics:</strong> ROC AUC, PR AUC, balanced accuracy, sensitivity, and specificity.</p>
+</div></div>
+<aside class="notes">
+<p>The dataset contains 8,000 customers and no missing values in the four variables used here. Conversion is highly imbalanced. Because almost nine out of ten customers converted, accuracy can look strong even when a model does not separate the two classes. I therefore emphasize discrimination and class-balanced metrics.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-data-wrangling-visualization-income-and-gender" class="slide level2">
+<h2>AO3: Data Wrangling &amp; Visualization — Income and Gender</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-2-1.png" width="652"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-3-1.png" width="652"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="takeaway">
+<p>Neither income nor gender appears to distinguish converters from non-converters on its own.</p>
+</div>
+<aside class="notes">
+<p>The descriptive patterns already suggest weak demographic effects. Income medians and distributions substantially overlap across outcomes, while conversion rates are nearly equal across gender groups. These plots are descriptive, so the models next test whether the variables work better jointly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-data-wrangling-visualization-age" class="slide level2">
+<h2>AO3: Data Wrangling &amp; Visualization — Age</h2>
+
+<img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-4-1.png" width="1008" class="r-stretch"><div class="takeaway">
+<p>Age provides little visible univariate discrimination across nearly the entire range.</p>
+</div>
+<aside class="notes">
+<p>The age density curves overlap across almost the full distribution. Taken together, the exploratory results provide little evidence that any single demographic variable strongly separates the outcome classes.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-machine-learning-methods-model-fitting" class="slide level2 smaller scrollable">
+<h2>AO3: Machine Learning Methods &amp; Model Fitting</h2>
+<div class="columns">
+<div class="column" style="width:46%;">
+<h3 id="logistic-regression">Logistic regression</h3>
+<ul>
+<li>Interpretable adjusted associations</li>
+<li>Standardized age and income</li>
+<li>Odds ratios with 95% confidence intervals</li>
+</ul>
+<h3 id="random-forest">Random forest</h3>
+<ul>
+<li>Captures nonlinearities and interactions</li>
+<li>500 trees</li>
+<li>Five-fold stratified cross-validation</li>
+<li>Tuned <code>mtry</code> and minimum node size</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<h3 id="leakage-safe-evaluation">Leakage-safe evaluation</h3>
+<ol type="1">
+<li>Stratified <strong>75/25 train–test split</strong></li>
+<li>Training-only preprocessing recipe</li>
+<li>Dummy-code gender; normalize numeric predictors</li>
+<li>Tune the forest within training folds</li>
+<li>Evaluate once on the untouched test set</li>
+</ol>
+<div class="key-message">
+<p>The majority-class prediction serves as the benchmark.</p>
+</div>
+</div></div>
+<aside class="notes">
+<p>Logistic regression provides interpretable adjusted effects. Random forest tests whether nonlinear patterns or interactions add predictive value. The split is stratified, all preprocessing is learned on the training data only, and the test data remains untouched until final evaluation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-prediction-model-evaluation" class="slide level2">
+<h2>AO3: Prediction &amp; Model Evaluation</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-5-1.png" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:36%;">
+<h3 id="held-out-conclusion">Held-out conclusion</h3>
+<p>Better-performing model: <strong>Random forest</strong></p>
+<p>ROC AUC: 0.538</p>
+<p>Balanced accuracy: 0.503</p>
+<div class="key-message">
+<p>Scores near 0.50 indicate little ability to rank converters above non-converters.</p>
+</div>
+</div></div>
+<aside class="notes">
+<p>On the held-out test set, the best demographic model has an ROC AUC and balanced accuracy near 0.50. That is approximately chance-level performance. High raw accuracy would not change this conclusion because the converted class dominates the sample.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-interpretation-logistic-regression" class="slide level2">
+<h2>AO3: Interpretation — Logistic Regression</h2>
+<div class="columns">
+<div class="column" style="width:62%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-6-1.png" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:34%;">
+<ul>
+<li>Odds ratios near <strong>1.00</strong> indicate weak adjusted associations.</li>
+<li>Intervals crossing <strong>1.00</strong> indicate limited evidence after controlling for the other demographics.</li>
+<li>Association does not imply causation.</li>
+</ul>
+</div></div>
+<aside class="notes">
+<p>The logistic regression provides adjusted effects. Age and income are standardized, so each odds ratio represents a one-standard-deviation increase. Effects close to one, particularly with confidence intervals crossing one, support the same substantive conclusion as the held-out model evaluation.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-interpretation-random-forest" class="slide level2">
+<h2>AO3: Interpretation — Random Forest</h2>
+<div class="columns">
+<div class="column" style="width:62%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-7-1.png" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:34%;">
+<p>Permutation importance ranks predictors <strong>within the fitted forest</strong>.</p>
+<div class="key-message">
+<p>A weak model can still rank weak predictors. Importance is relative and does not establish a business driver or causal effect.</p>
+</div>
+</div></div>
+<aside class="notes">
+<p>The random forest still produces a ranking because permutation importance is relative. We should not describe the top-ranked demographic as a strong driver when the entire model performs near chance. Variable importance also does not establish causality.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="ao3-summary-findings" class="slide level2">
+<h2>AO3: Summary Findings</h2>
+<div class="columns">
+<div class="column" style="width:48%;">
+<h3 id="what-ao3-found">What AO3 found</h3>
+<ul>
+<li>Demographic distributions overlap substantially.</li>
+<li>Both models showed weak test-set discrimination.</li>
+<li>Demographics alone are insufficient for targeting.</li>
+</ul>
+</div><div class="column" style="width:48%;">
+<h3 id="business-implication">Business implication</h3>
+<ul>
+<li>Prioritize behavioral and engagement signals.</li>
+<li>Use demographics for segmentation and fairness checks.</li>
+<li>Validate the final model on external data.</li>
+</ul>
+</div></div>
+<p><strong>Takeaway:</strong> Customer behavior is more promising than demographics for predicting conversion.</p>
+<aside class="notes">
+<p>The overall conclusion is that demographics alone do not meaningfully distinguish converters from non-converters. The business should prioritize engagement variables such as website visits, time on site, email activity, prior purchases, and campaign interactions. Demographics may remain useful for segmentation and fairness monitoring, but not as the primary targeting inputs.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<!-- =================================================================== -->
+<!-- AO4 —  Customer Interaction, Purchase Behavior, and Conversion                           -->
+<!-- =================================================================== -->
+</section></section>
+<section>
+<section id="analytics-objective-4-sandy-zhu" class="title-slide slide level1 center">
+<h1>Analytics Objective 4 — <em>Sandy Zhu</em></h1>
+
+</section>
+<section id="ao4-customer-interaction-purchase-behavior-and-conversion" class="slide level2">
+<h2>AO4: Customer Interaction, Purchase Behavior, and Conversion</h2>
+<p>RO4: How do email engagement (EmailOpens and EmailClicks) and previous purchases affect customer conversion, and which factor is the most important for predicting conversion?</p>
+<ul>
+<li><strong>Target variables:</strong> <code>ConversionRate</code>, <code>Conversion</code> (No / Yes)</li>
+<li><strong>Independent variables:</strong> <code>EmailOpens</code>, <code>EmailClicks</code>, <code>PreviousPurchases</code></li>
+<li><strong>Problem type:</strong> Regression and binary classification</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<ul>
+<li><strong>Business question:</strong> How do email engagement and previous purchases relate to customer conversion?</li>
+<li><strong>Analytical focus:</strong> Compare models and identify which customer behavior is most important for predicting conversion.</li>
+</ul>
+</section>
+<section id="ao4-machine-learning-methods-to-be-used" class="slide level2">
+<h2>AO4: Machine Learning Methods to be Used</h2>
+<h3 id="regression-focused-method">Regression-Focused Method</h3>
+<ul>
+<li><strong>Linear Regression</strong> — predicts <code>ConversionRate</code> as a continuous marketing outcome.</li>
+</ul>
+<h3 id="classification-focused-method">Classification-Focused Method</h3>
+<ul>
+<li><strong>Logistic Regression</strong> — predicts whether a customer converts (<code>Yes</code> / <code>No</code>).</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<h3 id="ensemble-method">Ensemble Method</h3>
+<ul>
+<li><strong>Random Forest</strong> — captures nonlinear patterns and identifies important behavioral predictors.</li>
+</ul>
+</section>
+<section id="ao4-data-wrangling-visualization" class="slide level2">
+<h2>AO4: Data Wrangling &amp; Visualization</h2>
+
+<img data-src="final_report_presentation_2_files/figure-revealjs/ao4-wrangle-1.png" width="960" class="r-stretch"><ul>
+<li>The dataset contains <strong>8,000 customers</strong>, with no missing values in the variables used for RO4.</li>
+<li>Approximately <strong>87.7%</strong> of customers converted, indicating substantial class imbalance in the binary outcome.</li>
+<li>Customers who converted generally show higher <code>EmailOpens</code>, <code>EmailClicks</code>, and <code>PreviousPurchases</code> than non-converters.</li>
+<li>These descriptive patterns suggest that customer interaction and prior purchasing behavior may contain useful information for predicting conversion.</li>
+</ul>
+</section>
+<section id="ao4-customer-behavior-conversion-pattern" class="slide level2">
+<h2>AO4: Customer Behavior × Conversion Pattern</h2>
+
+<img data-src="final_report_presentation_2_files/figure-revealjs/ao4-behavior-pattern-1.png" width="960" class="r-stretch"><ul>
+<li>Converted customers show <strong>higher email engagement</strong> (median opens: <strong>10 vs.&nbsp;6</strong>; clicks: <strong>5 vs.&nbsp;3</strong>).</li>
+<li>They also have <strong>more previous purchases</strong>, suggesting stronger engagement is associated with conversion.</li>
+</ul>
+</section>
+<section id="ao4-model-fitting" class="slide level2">
+<h2>AO4: Model Fitting</h2>
+<ul>
+<li><strong>Split:</strong> 80% training / 20% testing, stratified by <code>Conversion</code></li>
+<li><strong>Regression model:</strong> Linear Regression predicts <code>ConversionRate</code></li>
+<li><strong>Classification models:</strong> Logistic Regression, Decision Tree, and Random Forest predict <code>Conversion</code></li>
+<li><strong>Purpose:</strong> compare interpretable linear/classification methods with tree-based and ensemble approaches.</li>
+</ul>
+</section>
+<section id="ao4-prediction-model-evaluation" class="slide level2">
+<h2>AO4: Prediction &amp; Model Evaluation</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard    0.0559  
+2 rsq     standard    0.000587
+3 mae     standard    0.0490  </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 5
+  model               Accuracy ROC_AUC Sensitivity Specificity
+  &lt;chr&gt;                  &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+1 Decision Tree          0.876   0.5         1          0     
+2 Logistic Regression    0.876   0.656       1          0     
+3 Random Forest          0.869   0.637       0.979      0.0960</code></pre>
+</div>
+
+</div>
+<img data-src="final_report_presentation_2_files/figure-revealjs/ao4-eval-1.png" width="768" class="r-stretch"><ul>
+<li><strong>Regression:</strong> Linear Regression is evaluated using RMSE, MAE, and R² to determine how well customer behavior predicts <code>ConversionRate</code>.</li>
+</ul>
+</section>
+<section class="slide level2">
+
+<ul>
+<li><strong>Classification:</strong> Logistic Regression, Decision Tree, and Random Forest are compared using the same held-out test set.</li>
+<li>Because approximately <strong>87.7% of customers converted</strong>, accuracy alone may overstate model performance.</li>
+<li><strong>ROC AUC is the primary classification metric</strong>, because it measures how well each model distinguishes converters from non-converters across probability thresholds.</li>
+</ul>
+</section>
+<section id="ao4-interpretation" class="slide level2">
+<h2>AO4: Interpretation</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 7
+  term              estimate std.error statistic  p.value conf.low conf.high
+  &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 EmailClicks           1.52    0.0406     10.3  5.87e-25     1.40      1.65
+2 EmailOpens            1.52    0.0405     10.3  5.80e-25     1.40      1.64
+3 PreviousPurchases     1.47    0.0401      9.57 1.10e-21     1.36      1.59</code></pre>
+</div>
+
+</div>
+<img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"><ul>
+<li><strong>PreviousPurchases</strong> is the strongest predictor, followed by <strong>EmailOpens</strong> and <strong>EmailClicks</strong>.</li>
+<li>Purchase history appears to be more useful for predicting conversion than email engagement alone.</li>
+<li>The model has <strong>moderate predictive power (ROC AUC = 0.656)</strong>, so the results should be interpreted with caution.</li>
+</ul>
+</section>
+<section id="ao4-summary-findings" class="slide level2 incremental">
+<h2>AO4: Summary Findings</h2>
+<ul>
+<li><p>Higher <strong>EmailOpens, EmailClicks, and PreviousPurchases</strong> are associated with higher conversion.</p></li>
+<li><p><strong>PreviousPurchases</strong> is the strongest predictor, followed by <strong>EmailOpens</strong> and <strong>EmailClicks</strong>.</p></li>
+<li><p>Model performance is <strong>moderate (ROC AUC = 0.656)</strong>; the <strong>87.6% conversion rate</strong> also means accuracy alone can be misleading.</p></li>
+<li><p><strong>Business implication:</strong> use both <strong>purchase history and email engagement</strong> to identify customers with higher conversion potential.</p></li>
+</ul>
+</section>
+<!-- =================================================================== -->
+<!-- AO5 — Impact of Campaign Channel and Type on Customer Conversion    -->
+<!-- =================================================================== --></section>
+<section>
+<section id="analytics-objective-5-sora-hosoda" class="title-slide slide level1 center">
+<h1>Analytics Objective 5 — <em>Sora Hosoda</em></h1>
+
+</section>
+<section id="ao5-predictive-analytics" class="slide level2">
+<h2>AO5: Predictive Analytics</h2>
 <blockquote>
 <p><strong>Research Objective:</strong> To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.</p>
 </blockquote>
@@ -823,24 +1422,24 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           display:block!important;
       }</style></aside>
 </section>
-<section id="ao2-machine-learning-methods-to-be-used" class="slide level2">
-<h2>AO2: Machine Learning Methods to be Used</h2>
+<section id="ao5-machine-learning-methods-to-be-used" class="slide level2">
+<h2>AO5: Machine Learning Methods to be Used</h2>
 <div class="panel-tabset">
-<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Regression-Focused Methods</a></li><li><a href="#tabset-2-2">Classification-Focused Methods</a></li><li><a href="#tabset-2-3">Ensembles</a></li></ul>
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Regression-Focused Methods</a></li><li><a href="#tabset-3-2">Classification-Focused Methods</a></li><li><a href="#tabset-3-3">Ensembles</a></li></ul>
 <div class="tab-content">
-<div id="tabset-2-1">
+<div id="tabset-3-1">
 <ul>
 <li>Not used because <code>Conversion</code> is a binary outcome.</li>
 <li>The analysis focuses on classification models.</li>
 </ul>
 </div>
-<div id="tabset-2-2">
+<div id="tabset-3-2">
 <ul>
 <li><strong>Logistic Regression</strong> — interpretable baseline classification model</li>
 <li><strong>Decision Tree</strong> — captures nonlinear decision rules and interactions</li>
 </ul>
 </div>
-<div id="tabset-2-3">
+<div id="tabset-3-3">
 <ul>
 <li><strong>Random Forest</strong> — combines many decision trees</li>
 <li><strong>XGBoost</strong> — sequentially builds trees to improve prediction</li>
@@ -852,8 +1451,8 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
 <p>Four models were compared to determine whether ensemble methods improve prediction over simpler classification models.</p>
 </div>
 </section>
-<section id="ao2-data-wrangling-visualization" class="slide level2">
-<h2>AO2: Data Wrangling &amp; Visualization</h2>
+<section id="ao5-data-wrangling-visualization" class="slide level2">
+<h2>AO5: Data Wrangling &amp; Visualization</h2>
 <div class="columns">
 <div class="column" style="width:56%;">
 <div class="cell">
@@ -935,8 +1534,8 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           display:block!important;
       }</style></aside>
 </section>
-<section id="ao2-model-fitting" class="slide level2 scrollable">
-<h2>AO2: Model Fitting</h2>
+<section id="ao5-model-fitting" class="slide level2 scrollable">
+<h2>AO5: Model Fitting</h2>
 <div class="columns">
 <div class="column" style="width:48%;">
 <h3 id="data-splitting">Data Splitting</h3>
@@ -984,15 +1583,15 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           display:block!important;
       }</style></aside>
 </section>
-<section id="ao2-prediction-model-evaluation" class="slide level2">
-<h2>AO2: Prediction &amp; Model Evaluation</h2>
+<section id="ao5-prediction-model-evaluation" class="slide level2">
+<h2>AO5: Prediction &amp; Model Evaluation</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-3-1.png" width="720"></p>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-11-1.png" width="720"></p>
 </figure>
 </div>
 </div>
@@ -1065,15 +1664,15 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           display:block!important;
       }</style></aside>
 </section>
-<section id="ao2-interpretation-variable-importance-shap" class="slide level2">
-<h2>AO2: Interpretation — Variable Importance &amp; SHAP</h2>
+<section id="ao5-interpretation-variable-importance-shap" class="slide level2">
+<h2>AO5: Interpretation — Variable Importance &amp; SHAP</h2>
 <div class="columns">
 <div class="column" style="width:48%;">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-4-1.png" width="633"></p>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-12-1.png" width="633"></p>
 </figure>
 </div>
 </div>
@@ -1086,7 +1685,7 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-5-1.png" width="633"></p>
+<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-13-1.png" width="633"></p>
 </figure>
 </div>
 </div>
@@ -1109,10 +1708,10 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           display:block!important;
       }</style></aside>
 </section>
-<section id="ao2-interpretation-partial-dependence-plot" class="slide level2">
-<h2>AO2: Interpretation — Partial Dependence Plot</h2>
+<section id="ao5-interpretation-partial-dependence-plot" class="slide level2">
+<h2>AO5: Interpretation — Partial Dependence Plot</h2>
 
-<img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-6-1.png" width="864" class="r-stretch"><div class="takeaway">
+<img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-14-1.png" width="864" class="r-stretch"><div class="takeaway">
 <p>Predicted conversion remained fairly stable at lower spending levels, increased around <strong>Ad Spend ≈ 5,000</strong>, and then remained relatively high.</p>
 </div>
 <aside class="notes">
@@ -1129,8 +1728,8 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           display:block!important;
       }</style></aside>
 </section>
-<section id="ao2-summary-findings" class="slide level2">
-<h2>AO2: Summary Findings</h2>
+<section id="ao5-summary-findings" class="slide level2">
+<h2>AO5: Summary Findings</h2>
 <div class="columns">
 <div class="column" style="width:48%;">
 <h3 id="model-findings">Model Findings</h3>
@@ -1167,611 +1766,6 @@ $ Conversion          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-<!-- =================================================================== -->
-<!-- AO3 — Customer Demographics and Conversion                            -->
-<!-- =================================================================== -->
-</section></section>
-<section>
-<section id="analytics-objective-3-grace-sen" class="title-slide slide level1 center">
-<h1>Analytics Objective 3 — <em>Grace Sen</em></h1>
-
-</section>
-<section id="do-demographics-help-identify-customers-who-convert" class="slide level2" data-background-color="#1E4D2B">
-<h2>Do demographics help identify customers who convert?</h2>
-<h3 id="analytics-objective-3">Analytics Objective 3</h3>
-<p>Examine whether <strong>age, gender, and income</strong> are associated with—and useful for predicting—customer conversion.</p>
-<div class="objective-line">
-<p><strong>Predictors:</strong> Age · Gender · Income<br>
-<strong>Outcome:</strong> Conversion (binary classification)</p>
-</div>
-<aside class="notes">
-<p>My analytics objective asks whether customer demographics help explain and predict conversion. I use age, gender, and income as predictors and conversion as the binary outcome. The analysis compares an interpretable logistic regression with a nonlinear ensemble model.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-data-wrangling-visualization-sample-and-outcome" class="slide level2">
-<h2>AO3: Data Wrangling &amp; Visualization — Sample and Outcome</h2>
-<div class="columns">
-<div class="column" style="width:48%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-7-1.png" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:48%;">
-<ul>
-<li><strong>8000 customers</strong></li>
-<li><strong>0 missing values</strong> in AO3 variables</li>
-<li>Conversion rate: 87.6%</li>
-</ul>
-<div class="key-message">
-<p>Accuracy alone is misleading: predicting “Converted” for everyone already produces high accuracy.</p>
-</div>
-<p><strong>Primary metrics:</strong> ROC AUC, PR AUC, balanced accuracy, sensitivity, and specificity.</p>
-</div></div>
-<aside class="notes">
-<p>The dataset contains 8,000 customers and no missing values in the four variables used here. Conversion is highly imbalanced. Because almost nine out of ten customers converted, accuracy can look strong even when a model does not separate the two classes. I therefore emphasize discrimination and class-balanced metrics.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-data-wrangling-visualization-income-and-gender" class="slide level2">
-<h2>AO3: Data Wrangling &amp; Visualization — Income and Gender</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-8-1.png" width="652"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-9-1.png" width="652"></p>
-</figure>
-</div>
-</div>
-</div>
-</div></div>
-<div class="takeaway">
-<p>Neither income nor gender appears to distinguish converters from non-converters on its own.</p>
-</div>
-<aside class="notes">
-<p>The descriptive patterns already suggest weak demographic effects. Income medians and distributions substantially overlap across outcomes, while conversion rates are nearly equal across gender groups. These plots are descriptive, so the models next test whether the variables work better jointly.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-data-wrangling-visualization-age" class="slide level2">
-<h2>AO3: Data Wrangling &amp; Visualization — Age</h2>
-
-<img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-10-1.png" width="1008" class="r-stretch"><div class="takeaway">
-<p>Age provides little visible univariate discrimination across nearly the entire range.</p>
-</div>
-<aside class="notes">
-<p>The age density curves overlap across almost the full distribution. Taken together, the exploratory results provide little evidence that any single demographic variable strongly separates the outcome classes.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-machine-learning-methods-model-fitting" class="slide level2 smaller scrollable">
-<h2>AO3: Machine Learning Methods &amp; Model Fitting</h2>
-<div class="columns">
-<div class="column" style="width:46%;">
-<h3 id="logistic-regression">Logistic regression</h3>
-<ul>
-<li>Interpretable adjusted associations</li>
-<li>Standardized age and income</li>
-<li>Odds ratios with 95% confidence intervals</li>
-</ul>
-<h3 id="random-forest">Random forest</h3>
-<ul>
-<li>Captures nonlinearities and interactions</li>
-<li>500 trees</li>
-<li>Five-fold stratified cross-validation</li>
-<li>Tuned <code>mtry</code> and minimum node size</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<h3 id="leakage-safe-evaluation">Leakage-safe evaluation</h3>
-<ol type="1">
-<li>Stratified <strong>75/25 train–test split</strong></li>
-<li>Training-only preprocessing recipe</li>
-<li>Dummy-code gender; normalize numeric predictors</li>
-<li>Tune the forest within training folds</li>
-<li>Evaluate once on the untouched test set</li>
-</ol>
-<div class="key-message">
-<p>The majority-class prediction serves as the benchmark.</p>
-</div>
-</div></div>
-<aside class="notes">
-<p>Logistic regression provides interpretable adjusted effects. Random forest tests whether nonlinear patterns or interactions add predictive value. The split is stratified, all preprocessing is learned on the training data only, and the test data remains untouched until final evaluation.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-prediction-model-evaluation" class="slide level2">
-<h2>AO3: Prediction &amp; Model Evaluation</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-11-1.png" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:36%;">
-<h3 id="held-out-conclusion">Held-out conclusion</h3>
-<p>Better-performing model: <strong>Random forest</strong></p>
-<p>ROC AUC: 0.538</p>
-<p>Balanced accuracy: 0.503</p>
-<div class="key-message">
-<p>Scores near 0.50 indicate little ability to rank converters above non-converters.</p>
-</div>
-</div></div>
-<aside class="notes">
-<p>On the held-out test set, the best demographic model has an ROC AUC and balanced accuracy near 0.50. That is approximately chance-level performance. High raw accuracy would not change this conclusion because the converted class dominates the sample.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-interpretation-logistic-regression" class="slide level2">
-<h2>AO3: Interpretation — Logistic Regression</h2>
-<div class="columns">
-<div class="column" style="width:62%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-12-1.png" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:34%;">
-<ul>
-<li>Odds ratios near <strong>1.00</strong> indicate weak adjusted associations.</li>
-<li>Intervals crossing <strong>1.00</strong> indicate limited evidence after controlling for the other demographics.</li>
-<li>Association does not imply causation.</li>
-</ul>
-</div></div>
-<aside class="notes">
-<p>The logistic regression provides adjusted effects. Age and income are standardized, so each odds ratio represents a one-standard-deviation increase. Effects close to one, particularly with confidence intervals crossing one, support the same substantive conclusion as the held-out model evaluation.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-interpretation-random-forest" class="slide level2">
-<h2>AO3: Interpretation — Random Forest</h2>
-<div class="columns">
-<div class="column" style="width:62%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-13-1.png" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:34%;">
-<p>Permutation importance ranks predictors <strong>within the fitted forest</strong>.</p>
-<div class="key-message">
-<p>A weak model can still rank weak predictors. Importance is relative and does not establish a business driver or causal effect.</p>
-</div>
-</div></div>
-<aside class="notes">
-<p>The random forest still produces a ranking because permutation importance is relative. We should not describe the top-ranked demographic as a strong driver when the entire model performs near chance. Variable importance also does not establish causality.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="ao3-summary-findings" class="slide level2">
-<h2>AO3: Summary Findings</h2>
-<div class="columns">
-<div class="column" style="width:48%;">
-<h3 id="what-ao3-found">What AO3 found</h3>
-<ul>
-<li>Demographic distributions overlap substantially.</li>
-<li>Both models showed weak test-set discrimination.</li>
-<li>Demographics alone are insufficient for targeting.</li>
-</ul>
-</div><div class="column" style="width:48%;">
-<h3 id="business-implication">Business implication</h3>
-<ul>
-<li>Prioritize behavioral and engagement signals.</li>
-<li>Use demographics for segmentation and fairness checks.</li>
-<li>Validate the final model on external data.</li>
-</ul>
-</div></div>
-<p><strong>Takeaway:</strong> Customer behavior is more promising than demographics for predicting conversion.</p>
-<aside class="notes">
-<p>The overall conclusion is that demographics alone do not meaningfully distinguish converters from non-converters. The business should prioritize engagement variables such as website visits, time on site, email activity, prior purchases, and campaign interactions. Demographics may remain useful for segmentation and fairness monitoring, but not as the primary targeting inputs.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<!-- =================================================================== -->
-<!-- AO4 —  Customer Interaction, Purchase Behavior, and Conversion                           -->
-<!-- =================================================================== -->
-</section></section>
-<section>
-<section id="analytics-objective-4-sandy-zhu" class="title-slide slide level1 center">
-<h1>Analytics Objective 4 — <em>Sandy Zhu</em></h1>
-<p><strong>RO4:</strong> To evaluate how customer interaction and previous purchasing behavior are associated with customer conversion and broader marketing outcomes, and to identify the most important behavioral drivers for predicting customer response.</p>
-<ul>
-<li><strong>Target variables:</strong> <code>ConversionRate</code>, <code>Conversion</code> (No / Yes)</li>
-<li><strong>Independent variables:</strong> <code>EmailOpens</code>, <code>EmailClicks</code>, <code>PreviousPurchases</code></li>
-<li><strong>Problem type:</strong> Regression and binary classification</li>
-<li><strong>Business question:</strong> How are customer email engagement and previous purchasing behavior related to marketing response, and how useful are these behaviors for predicting customer conversion?</li>
-<li><strong>Analytical focus:</strong> Examine behavioral relationships with conversion outcomes, compare predictive models, and identify the most important behavioral drivers.</li>
-</ul>
-</section>
-<section id="ao4-machine-learning-methods-to-be-used" class="slide level2">
-<h2>AO4: Machine Learning Methods to be Used</h2>
-<div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Regression-Focused Methods</a></li><li><a href="#tabset-3-2">Classification-Focused Methods</a></li><li><a href="#tabset-3-3">Ensembles</a></li></ul>
-<div class="tab-content">
-<div id="tabset-3-1">
-<ul>
-<li>Linear Regression — evaluates whether <code>EmailOpens</code>, <code>EmailClicks</code>, and <code>PreviousPurchases</code> explain variation in <code>ConversionRate</code>.</li>
-<li>Model performance is evaluated using RMSE, MAE, and R-squared.</li>
-</ul>
-</div>
-<div id="tabset-3-2">
-<ul>
-<li>Logistic Regression — interpretable baseline model for predicting customer <code>Conversion</code>.</li>
-<li>Performance is evaluated using confusion matrix, sensitivity, specificity, accuracy, and ROC AUC.</li>
-</ul>
-</div>
-<div id="tabset-3-3">
-<ul>
-<li>Random Forest — evaluates whether nonlinear relationships and interactions improve conversion prediction.</li>
-<li>Variable importance, PDP, and SHAP are used to interpret the most important behavioral drivers.</li>
-</ul>
-</div>
-</div>
-</div>
-</section>
-<section id="ao4customer-engagement-purchase-behavior-and-marketing-outcomes" class="slide level2">
-<h2>AO4:Customer Engagement, Purchase Behavior, and Marketing Outcomes</h2>
-
-<img data-src="final_report_presentation_2_files/figure-revealjs/ao4-wrangle-1.png" width="960" class="r-stretch"><ul>
-<li>The dataset contains <strong>8,000 customers</strong>, with no missing values in the variables used for RO4.</li>
-<li>Approximately <strong>87.7%</strong> of customers converted, indicating substantial class imbalance in the binary outcome.</li>
-<li>Customers who converted generally show higher <code>EmailOpens</code>, <code>EmailClicks</code>, and <code>PreviousPurchases</code> than non-converters.</li>
-<li>These descriptive patterns suggest that customer interaction and prior purchasing behavior may contain useful information for predicting conversion.</li>
-</ul>
-</section>
-<section id="ao4-customer-behavior-conversion-pattern" class="slide level2">
-<h2>AO4: Customer Behavior × Conversion Pattern</h2>
-
-<img data-src="final_report_presentation_2_files/figure-revealjs/ao4-behavior-pattern-1.png" width="960" class="r-stretch"></section>
-<section id="ao4-model-fitting" class="slide level2">
-<h2>AO4: Model Fitting</h2>
-</section></section>
-<section id="section" class="title-slide slide level1 center">
-<h1>————————————————–</h1>
-
-</section>
-
-<section id="classification-recipe-conversion" class="title-slide slide level1 center">
-<h1>Classification recipe: Conversion</h1>
-
-</section>
-
-<section>
-<section id="section-1" class="title-slide slide level1 center">
-<h1>————————————————–</h1>
-<ul>
-<li><strong>Split:</strong> 80% training / 20% testing, stratified by <code>Conversion</code></li>
-<li><strong>Regression model:</strong> Linear Regression predicts <code>ConversionRate</code></li>
-<li><strong>Classification models:</strong> Logistic Regression, Decision Tree, and Random Forest predict <code>Conversion</code></li>
-<li><strong>Purpose:</strong> compare interpretable linear/classification methods with tree-based and ensemble approaches.</li>
-</ul>
-</section>
-<section id="ao4-prediction-model-evaluation" class="slide level2">
-<h2>AO4: Prediction &amp; Model Evaluation</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 3
-  .metric .estimator .estimate
-  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 rmse    standard    0.0559  
-2 rsq     standard    0.000587
-3 mae     standard    0.0490  </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 5
-  model               Accuracy ROC_AUC Sensitivity Specificity
-  &lt;chr&gt;                  &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
-1 Decision Tree          0.876   0.5         1          0     
-2 Logistic Regression    0.876   0.656       1          0     
-3 Random Forest          0.869   0.637       0.979      0.0960</code></pre>
-</div>
-
-</div>
-<img data-src="final_report_presentation_2_files/figure-revealjs/ao4-eval-1.png" width="768" class="r-stretch"><ul>
-<li><strong>Regression:</strong> Linear Regression is evaluated using RMSE, MAE, and R² to determine how well customer behavior predicts <code>ConversionRate</code>.</li>
-<li><strong>Classification:</strong> Logistic Regression, Decision Tree, and Random Forest are compared using the same held-out test set.</li>
-<li>Because approximately <strong>87.7% of customers converted</strong>, accuracy alone may overstate model performance.</li>
-<li><strong>ROC AUC is the primary classification metric</strong>, because it measures how well each model distinguishes converters from non-converters across probability thresholds.</li>
-</ul>
-</section>
-<section id="ao4-interpretation" class="slide level2">
-<h2>AO4: Interpretation</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 7
-  term              estimate std.error statistic  p.value conf.low conf.high
-  &lt;chr&gt;                &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
-1 EmailClicks           1.52    0.0406     10.3  5.87e-25     1.40      1.65
-2 EmailOpens            1.52    0.0405     10.3  5.80e-25     1.40      1.64
-3 PreviousPurchases     1.47    0.0401      9.57 1.10e-21     1.36      1.59</code></pre>
-</div>
-
-</div>
-<img data-src="final_report_presentation_2_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"><ul>
-<li>Random Forest variable importance shows that <strong>PreviousPurchases</strong> is the most important predictor of customer conversion among the three behavioral variables.</li>
-<li><strong>EmailOpens</strong> and <strong>EmailClicks</strong> also contribute to prediction, although their importance is slightly lower and relatively similar.</li>
-<li>Overall, the results suggest that <strong>previous purchasing behavior may provide more predictive information than email engagement alone</strong>.</li>
-<li>However, variable importance should be interpreted cautiously because the overall classification performance is moderate (ROC AUC = <strong>0.656</strong>).</li>
-</ul>
-</section>
-<section id="ao4-summary-findings" class="slide level2">
-<h2>AO4: Summary Findings</h2>
-<ul>
-<li class="fragment"><p><strong>Customer interaction is associated with conversion:</strong> customers who converted generally showed higher levels of <code>EmailOpens</code>, <code>EmailClicks</code>, and <code>PreviousPurchases</code> than customers who did not convert.</p></li>
-<li class="fragment"><p><strong>All three behavioral variables contribute to conversion prediction:</strong> Logistic Regression shows positive relationships between <code>EmailOpens</code>, <code>EmailClicks</code>, <code>PreviousPurchases</code>, and the likelihood of conversion.</p></li>
-<li class="fragment"><p><strong>Previous purchasing behavior is the most important predictor:</strong> Random Forest variable importance identifies <code>PreviousPurchases</code> as the strongest predictor, followed by <code>EmailOpens</code> and <code>EmailClicks</code>.</p></li>
-<li class="fragment"><p><strong>Predictive caution:</strong> the Logistic Regression model achieved a ROC AUC of approximately <strong>0.656</strong>, indicating moderate but limited ability to distinguish converters from non-converters. Because about <strong>87.6%</strong> of customers converted, accuracy alone may overstate model performance.</p></li>
-<li class="fragment"><p><strong>Business implication:</strong> marketers should consider both historical purchasing behavior and email engagement when identifying customers with higher conversion potential, with <code>PreviousPurchases</code> providing particularly useful predictive information.</p></li>
-</ul>
-<!-- =================================================================== -->
-<!-- AO5 — Impact of Campaign Channel and Type on Customer Conversion    -->
-<!-- =================================================================== -->
-</section></section>
-<section>
-<section id="analytics-objective-5-jungmin-woo" class="title-slide slide level1 center">
-<h1>Analytics Objective 5 — <em>Jungmin Woo</em></h1>
-
-</section>
-<section id="ao5-campaign-performance" class="slide level2 smaller">
-<h2>AO5: Campaign Performance</h2>
-<blockquote>
-<p>RO5: Analyze the impact of marketing channels and campaign types on customer conversion.</p>
-</blockquote>
-<ul>
-<li><strong>IV (predictors):</strong> <code>CampaignChannel</code>, <code>CampaignType</code> (both categorical)</li>
-<li><strong>DV (target):</strong> <code>Conversion</code> (binary — Yes / No)</li>
-<li><strong>Problem type:</strong> Classification</li>
-<li>Only these two categorical variables are used as predictors, so this AO isolates the effect of <em>channel</em> and <em>campaign type</em> on conversion, independent of demographic or on-site behavior variables</li>
-</ul>
-</section>
-<section id="ao5-machine-learning-methods-to-be-used" class="slide level2">
-<h2>AO5: Machine Learning Methods to be Used</h2>
-<div class="panel-tabset">
-<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">Regression-Focused Methods</a></li><li><a href="#tabset-4-2">Classification-Focused Methods</a></li><li><a href="#tabset-4-3">Ensembles</a></li></ul>
-<div class="tab-content">
-<div id="tabset-4-1">
-<ul>
-<li>Not applicable (outcome is categorical)</li>
-</ul>
-</div>
-<div id="tabset-4-2">
-<ul>
-<li>Logistic Regression</li>
-<li>Decision Tree (classification)</li>
-</ul>
-</div>
-<div id="tabset-4-3">
-<ul>
-<li>Random Forest (classification)</li>
-</ul>
-</div>
-</div>
-</div>
-</section>
-<section id="ao5-data-wrangling-visualization" class="slide level2">
-<h2>AO5: Data Wrangling &amp; Visualization</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  CampaignChannel CampaignType Conversion
-            &lt;int&gt;        &lt;int&gt;      &lt;int&gt;
-1               0            0          0</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 20 × 4
-   CampaignChannel CampaignType  ConversionRate     N
-   &lt;fct&gt;           &lt;fct&gt;                  &lt;dbl&gt; &lt;int&gt;
- 1 SEO             Conversion             0.940   402
- 2 PPC             Conversion             0.940   447
- 3 Email           Conversion             0.933   416
- 4 Referral        Conversion             0.930   445
- 5 Social Media    Conversion             0.924   367
- 6 Referral        Awareness              0.884   431
- 7 PPC             Consideration          0.869   404
- 8 SEO             Retention              0.866   389
- 9 Social Media    Retention              0.862   370
-10 Referral        Retention              0.860   436
-11 PPC             Awareness              0.859   412
-12 PPC             Retention              0.857   392
-13 Email           Consideration          0.856   403
-14 Referral        Consideration          0.855   407
-15 Social Media    Consideration          0.849   405
-16 SEO             Awareness              0.849   390
-17 SEO             Consideration          0.848   369
-18 Email           Retention              0.844   360
-19 Email           Awareness              0.841   378
-20 Social Media    Awareness              0.841   377</code></pre>
-</div>
-</div>
-
-<img data-src="final_report_presentation_2_files/figure-revealjs/ao2-viz-1.png" width="864" class="r-stretch"><ul>
-<li>No missing values in <code>CampaignChannel</code>, <code>CampaignType</code>, or <code>Conversion</code></li>
-<li>The bar chart shows very little spread <strong>across channels</strong> within each campaign type (bars of the same color are roughly the same height), but a clear gap <strong>across campaign types</strong>: <code>CampaignType == "Conversion"</code> sits noticeably higher (~92–94%) than <code>Awareness</code>, <code>Consideration</code>, or <code>Retention</code> (~84–88%) in every channel</li>
-<li>This suggests campaign <em>type</em> may matter more than campaign <em>channel</em> for conversion — tested formally below</li>
-</ul>
-</section>
-<section id="ao5-model-fitting" class="slide level2">
-<h2>AO5: Model Fitting</h2>
-</section>
-<section id="ao5-prediction-model-evaluation" class="slide level2">
-<h2>AO5: Prediction &amp; Model Evaluation</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 9 × 4
-  model               .metric  .estimator .estimate
-  &lt;chr&gt;               &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
-1 Decision Tree       accuracy binary         0.876
-2 Logistic Regression accuracy binary         0.876
-3 Random Forest       accuracy binary         0.876
-4 Decision Tree       f_meas   binary         0.934
-5 Logistic Regression f_meas   binary         0.934
-6 Random Forest       f_meas   binary         0.934
-7 Decision Tree       roc_auc  binary         0.5  
-8 Logistic Regression roc_auc  binary         0.554
-9 Random Forest       roc_auc  binary         0.543</code></pre>
-</div>
-</div>
-<ul>
-<li>All three models land at essentially the same accuracy (~87.6%), which matches the overall base rate of <code>Conversion == "Yes"</code> in the data — the models are not beating a “always predict Yes” baseline on accuracy alone</li>
-<li>ROC AUC is low (~0.53–0.54, just above the 0.50 random-guess line), meaning <code>CampaignChannel</code> and <code>CampaignType</code> alone have only weak discriminative power for <em>individual-level</em> conversion, even though the group-level rates in the bar chart differ by type</li>
-<li>This is a common pattern: a variable can show a real, statistically significant <em>group-level</em> effect while still being a weak <em>individual-level</em> predictor, because most of the variation in who converts is driven by other factors (behavioral, demographic) not included in this AO by design</li>
-</ul>
-</section>
-<section id="ao5-interpretation" class="slide level2">
-<h2>AO5: Interpretation</h2>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Pearson's Chi-squared test
-
-data:  table(campaign_data$CampaignChannel, campaign_data$Conversion)
-X-squared = 2.7849, df = 4, p-value = 0.5944</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Pearson's Chi-squared test
-
-data:  table(campaign_data$CampaignType, campaign_data$Conversion)
-X-squared = 84.454, df = 3, p-value &lt; 2.2e-16</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 8 × 5
-  term                         estimate std.error statistic  p.value
-  &lt;chr&gt;                           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)                   1.77        0.106   16.7    6.21e-63
-2 CampaignType_Conversion       0.911       0.125    7.28   3.31e-13
-3 CampaignChannel_PPC           0.0864      0.122    0.710  4.78e- 1
-4 CampaignType_Consideration   -0.0429      0.101   -0.426  6.70e- 1
-5 CampaignChannel_Referral      0.0492      0.120    0.410  6.82e- 1
-6 CampaignType_Retention       -0.0280      0.102   -0.276  7.83e- 1
-7 CampaignChannel_Social.Media  0.0179      0.122    0.147  8.83e- 1
-8 CampaignChannel_SEO          -0.00262     0.122   -0.0215 9.83e- 1</code></pre>
-</div>
-
-</div>
-<img data-src="final_report_presentation_2_files/figure-revealjs/ao2-interpret-1.png" width="768" class="r-stretch"><ul>
-<li>The chi-square test for <code>CampaignChannel</code> is <strong>not significant</strong> (χ² ≈ 2.78, p ≈ 0.59) — channel choice alone shows no reliable association with conversion</li>
-<li>The chi-square test for <code>CampaignType</code> <strong>is significant</strong> (χ² ≈ 84.5, p &lt; 0.001) — campaign type is meaningfully associated with conversion, driven mainly by the <code>"Conversion"</code> type having a substantially higher rate (~93%) than <code>Awareness</code>/<code>Consideration</code>/<code>Retention</code> (~84–88%)</li>
-<li>Random Forest variable importance should echo this: dummy variables for <code>CampaignType</code> should rank above <code>CampaignChannel</code> dummies</li>
-</ul>
-</section>
-<section id="ao5-summary-findings" class="slide level2">
-<h2>AO5: Summary Findings</h2>
-<ul>
-<li class="fragment"><strong>Campaign type</strong> has a statistically significant relationship with conversion; <strong>campaign channel</strong> does not, at least on its own</li>
-<li class="fragment">The higher conversion rate for <code>CampaignType == "Conversion"</code> campaigns is expected by design (these campaigns are explicitly built to drive conversion) but confirms the labeling is consistent with actual outcomes</li>
-<li class="fragment">Despite the significant group-level association, channel + type alone give weak individual-level predictive power (ROC AUC ≈ 0.53) — they are not sufficient by themselves to identify which specific customers will convert</li>
-<li class="fragment"><strong>Business implication:</strong> channel selection appears interchangeable for conversion purposes in this data, so budget allocation decisions should weigh cost-per-channel and other KPIs rather than assuming any one channel converts better; campaign <em>type</em> mix (more bottom-funnel “Conversion”-type campaigns) is the lever more strongly tied to conversion outcomes</li>
-</ul>
 </section></section>
 <section>
 <section id="conclusion" class="title-slide slide level1 center">

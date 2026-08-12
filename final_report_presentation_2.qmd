@@ -32,11 +32,11 @@ format:
 ::: incremental
 1. Introduction
 2. Population / Sample & Sample Characteristics
-3. Analytics Objective 1 — *Yushan Huang*-Marketing Channels and Campaign Types
-4. Analytics Objective 2 — *Sora Hosoda* - Predictive Analytics
+3. Analytics Objective 1 — *Yushan Huang* - Marketing Channels and Campaign Types
+4. Analytics Objective 2 — *Jungmin Woo* - Campaign Performance
 5. Analytics Objective 3 — *Grace Sen* - Customer Demographics and Conversion
 6. Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and Purchase Behavior
-7. Analytics Objective 5 — *Jungmin Woo* — Impact of Campaign Channel and Type on Customer Conversion
+7. Analytics Objective 5 — *Sora Hosoda* - Predictive Analytics
 8. Conclusion
 9. Appendix
 :::
@@ -414,509 +414,210 @@ ao1_fit_rf |>
 <!-- =================================================================== -->
 <!-- AO2 — left blank for Member 2 to fill in                            -->
 <!-- =================================================================== -->
+# Analytics Objective 2 — *Jungmin Woo*
 
-# Analytics Objective 2 — *Sora Hosoda*
+## AO2: Campaign Performance {.smaller}
 
-```{r}
-#| label: ao2-hidden-setup
-#| include: false
-#| warning: false
-#| message: false
+> RO2: Analyze the impact of marketing channels and campaign types on
+> customer conversion.
 
-set.seed(2025)
-
-ao2_data <- raw_data |>
-  transmute(
-    Age,
-    Gender = factor(Gender),
-    Income,
-    CampaignChannel = factor(CampaignChannel),
-    CampaignType = factor(CampaignType),
-    AdSpend,
-    ClickThroughRate,
-    WebsiteVisits,
-    PagesPerVisit,
-    TimeOnSite,
-    SocialShares,
-    EmailOpens,
-    EmailClicks,
-    PreviousPurchases,
-    LoyaltyPoints,
-    Conversion = factor(
-      Conversion,
-      levels = c(1, 0),
-      labels = c("Yes", "No")
-    )
-  )
-
-set.seed(617)
-
-ao2_split <- initial_split(
-  ao2_data,
-  prop = 0.80,
-  strata = Conversion
-)
-
-ao2_train <- training(ao2_split)
-ao2_test <- testing(ao2_split)
-
-ao2_xgb_rec <- recipe(
-  Conversion ~ .,
-  data = ao2_train
-) |>
-  step_impute_median(all_numeric_predictors()) |>
-  step_novel(all_nominal_predictors()) |>
-  step_unknown(all_nominal_predictors()) |>
-  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
-  step_zv(all_predictors())
-
-ao2_xgb_spec <- boost_tree(
-  trees = 300,
-  tree_depth = 6,
-  learn_rate = 0.05,
-  min_n = 30
-) |>
-  set_engine("xgboost") |>
-  set_mode("classification")
-
-ao2_xgb_wf <- workflow() |>
-  add_recipe(ao2_xgb_rec) |>
-  add_model(ao2_xgb_spec)
-
-set.seed(2025)
-
-ao2_xgb_fit <- fit(
-  ao2_xgb_wf,
-  data = ao2_train
-)
-
-ao2_xgb_prep <- prep(
-  ao2_xgb_rec,
-  training = ao2_train
-)
-
-ao2_xgb_baked <- bake(
-  ao2_xgb_prep,
-  new_data = ao2_train
-)
-
-ao2_predictor_names <- setdiff(
-  names(ao2_xgb_baked),
-  "Conversion"
-)
-
-ao2_xgb_matrix <- as.matrix(
-  ao2_xgb_baked[, ao2_predictor_names]
-)
-
-ao2_xgb_engine <- workflows::extract_fit_parsnip(
-  ao2_xgb_fit
-)$fit
-```
-
-## AO2: Predictive Analytics
-
-> **Research Objective:** To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
-
-- **Outcome:** `Conversion` (Yes / No)
-- **Predictors:** 15 customer and marketing variables
-- **Problem type:** Binary classification
-- **Analytical focus:** Compare multiple classification models and identify the strongest predictors of conversion.
-
-::: key-message
-Which factors are most useful for predicting customer conversion when all major predictor groups are considered together?
-:::
-
-::: notes
-This objective combines customer demographics, campaign information, engagement variables, and purchase history in one overall predictive analysis.
-:::
+- **IV (predictors):** `CampaignChannel`, `CampaignType` (both categorical)
+- **DV (target):** `Conversion` (binary — Yes / No)
+- **Problem type:** Classification
+- Only these two categorical variables are used as predictors, so this AO
+  isolates the effect of *channel* and *campaign type* on conversion,
+  independent of demographic or on-site behavior variables
 
 ## AO2: Machine Learning Methods to be Used
 
 ::: {.panel-tabset}
 
 ### Regression-Focused Methods
-
-- Not used because `Conversion` is a binary outcome.
-- The analysis focuses on classification models.
+- Not applicable (outcome is categorical)
 
 ### Classification-Focused Methods
-
-- **Logistic Regression** — interpretable baseline classification model
-- **Decision Tree** — captures nonlinear decision rules and interactions
+- Logistic Regression
+- Decision Tree (classification)
 
 ### Ensembles
+- Random Forest (classification)
 
-- **Random Forest** — combines many decision trees
-- **XGBoost** — sequentially builds trees to improve prediction
-
-:::
-
-::: takeaway
-Four models were compared to determine whether ensemble methods improve prediction over simpler classification models.
 :::
 
 ## AO2: Data Wrangling & Visualization
 
-:::: columns
-::: {.column width="56%"}
-
 ```{r}
-#| echo: false
+#| label: ao2-wrangle
 
-ao2_predictor_groups <- tibble::tribble(
-  ~Category, ~Variables,
-  "Customer Profile", "Age, Gender, Income",
-  "Campaign", "Channel, Type, Ad Spend",
-  "Engagement", "CTR, Website Visits, Pages per Visit, Time on Site, Email Activity, Social Shares",
-  "History", "Previous Purchases, Loyalty Points"
-)
+# Missing-value check on the relevant columns
+campaign_data |>
+  select(CampaignChannel, CampaignType, Conversion) |>
+  summarise(across(everything(), ~ sum(is.na(.))))
 
-knitr::kable(
-  ao2_predictor_groups,
-  col.names = c("Predictor Group", "Variables")
-)
+# Baseline conversion rate by Channel x Type
+ao2_baseline <- campaign_data |>
+  group_by(CampaignChannel, CampaignType) |>
+  summarise(
+    ConversionRate = mean(Conversion == "Yes"),
+    N = n(),
+    .groups = "drop"
+  ) |>
+  arrange(desc(ConversionRate))
+
+ao2_baseline
 ```
 
-:::
-
-::: {.column width="40%"}
-
 ```{r}
-#| echo: false
+#| label: ao2-viz
+#| fig-width: 9
+#| fig-height: 5
 
-ao2_balance <- tibble::tribble(
-  ~Conversion, ~Customers, ~Share,
-  "Yes", "7,012", "87.6%",
-  "No", "988", "12.4%"
-)
-
-knitr::kable(ao2_balance)
+ggplot(ao2_baseline, aes(x = CampaignChannel, y = ConversionRate, fill = CampaignType)) +
+  geom_col(position = "dodge") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Conversion Rate by Channel, Segmented by Campaign Type",
+    x = "Campaign Channel", y = "Conversion Rate", fill = "Campaign Type"
+  ) +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
-**Class imbalance:** About 88% of customers converted.
-
-:::
-::::
-
-::: takeaway
-Because the outcome is highly imbalanced, ROC AUC was prioritized over accuracy when comparing models.
-:::
-
-::: notes
-The analysis uses 15 predictors from four broad categories. Conversion is highly imbalanced, so accuracy alone can be misleading.
-:::
+- No missing values in `CampaignChannel`, `CampaignType`, or `Conversion`
+- The bar chart shows very little spread **across channels** within each campaign type (bars of the same color are roughly the same height), but a clear gap **across campaign types**: `CampaignType == "Conversion"` sits noticeably higher (~92–94%) than `Awareness`, `Consideration`, or `Retention` (~84–88%) in every channel
+- This suggests campaign *type* may matter more than campaign *channel* for conversion — tested formally below
 
 ## AO2: Model Fitting
 
-:::: columns
-::: {.column width="48%"}
+```{r}
+#| label: ao2-fit
 
-### Data Splitting
+set.seed(2026)
 
-- **80% training / 20% testing**
-- Stratified by `Conversion`
-- Test data held out for final evaluation
+ao2_data <- campaign_data |>
+  select(CampaignChannel, CampaignType, Conversion)
 
-### Recipe Creation
+# --- Data splitting ---
+ao2_split <- initial_split(ao2_data, prop = 0.8, strata = Conversion)
+ao2_train <- training(ao2_split)
+ao2_test  <- testing(ao2_split)
+ao2_folds <- vfold_cv(ao2_train, v = 5, strata = Conversion)
 
-- Median imputation
-- Novel and unknown factor handling
-- Dummy encoding
-- Zero-variance removal
+# --- Recipe ---
+ao2_recipe <- recipe(Conversion ~ CampaignChannel + CampaignType, data = ao2_train) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors())
 
-:::
+# --- Model specifications ---
+ao2_spec_glm <- logistic_reg() |>
+  set_engine("glm") |>
+  set_mode("classification")
 
-::: {.column width="48%"}
+ao2_spec_tree <- decision_tree(cost_complexity = tune(), tree_depth = tune()) |>
+  set_engine("rpart") |>
+  set_mode("classification")
 
-### Model Specification
+ao2_spec_rf <- rand_forest(trees = 500, min_n = tune()) |>
+  set_engine("ranger", importance = "permutation") |>
+  set_mode("classification")
 
-1. Logistic Regression
-2. Decision Tree
-3. Random Forest
-4. XGBoost
+# --- Workflows ---
+ao2_wf_glm  <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_glm)
+ao2_wf_tree <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_tree)
+ao2_wf_rf   <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_rf)
 
-### Model Selection
+# --- Tuning ---
+ao2_tree_res <- tune_grid(ao2_wf_tree, resamples = ao2_folds, grid = 5,
+                           metrics = metric_set(roc_auc))
+ao2_rf_res   <- tune_grid(ao2_wf_rf, resamples = ao2_folds, grid = 5,
+                           metrics = metric_set(roc_auc))
 
-- **10-fold stratified cross-validation**
-- Hyperparameter tuning for ensemble models
-- Primary metric: **ROC AUC**
-
-:::
-::::
-
-::: key-message
-The same training data and cross-validation framework were used to compare model performance.
-:::
-
-::: notes
-The data was split before model development. Cross-validation was conducted within the training data, while the test set remained untouched until final evaluation.
-:::
+# --- Finalize + fit ---
+ao2_fit_glm  <- fit(ao2_wf_glm, data = ao2_train)
+ao2_fit_tree <- finalize_workflow(ao2_wf_tree, select_best(ao2_tree_res, metric = "roc_auc")) |>
+  fit(data = ao2_train)
+ao2_fit_rf   <- finalize_workflow(ao2_wf_rf, select_best(ao2_rf_res, metric = "roc_auc")) |>
+  fit(data = ao2_train)
+```
 
 ## AO2: Prediction & Model Evaluation
 
-:::: columns
-::: {.column width="60%"}
-
 ```{r}
-#| echo: false
-#| fig-width: 7.5
-#| fig-height: 4.6
+#| label: ao2-eval
 
-ao2_cv <- tibble::tribble(
-  ~Model, ~ROC_AUC,
-  "XGBoost", 0.818,
-  "Random Forest", 0.795,
-  "Logistic Regression", 0.779,
-  "Decision Tree", 0.699
+ao2_class_metrics <- metric_set(accuracy, roc_auc, f_meas)
+
+ao2_results <- bind_rows(
+  augment(ao2_fit_glm,  new_data = ao2_test) |> mutate(model = "Logistic Regression"),
+  augment(ao2_fit_tree, new_data = ao2_test) |> mutate(model = "Decision Tree"),
+  augment(ao2_fit_rf,   new_data = ao2_test) |> mutate(model = "Random Forest")
 )
 
-ggplot(
-  ao2_cv,
-  aes(
-    x = reorder(Model, ROC_AUC),
-    y = ROC_AUC
-  )
-) +
-  geom_col(fill = "#1f3864", width = 0.65) +
-  geom_text(
-    aes(label = sprintf("%.3f", ROC_AUC)),
-    hjust = -0.15,
-    size = 4.5
-  ) +
-  coord_flip() +
-  scale_y_continuous(
-    limits = c(0, 0.90),
-    expand = expansion(mult = c(0, 0.02))
-  ) +
-  labs(
-    title = "10-Fold Cross-Validation ROC AUC",
-    x = NULL,
-    y = "Mean ROC AUC"
-  ) +
-  theme_minimal(base_size = 13)
+ao2_metrics <- ao2_results |>
+  group_by(model) |>
+  ao2_class_metrics(truth = Conversion, estimate = .pred_class, .pred_Yes, event_level = "second")
+
+ao2_metrics
 ```
 
-:::
+- All three models land at essentially the same accuracy (~87.6%), which
+  matches the overall base rate of `Conversion == "Yes"` in the data — the
+  models are not beating a "always predict Yes" baseline on accuracy alone
+- ROC AUC is low (~0.53–0.54, just above the 0.50 random-guess line),
+  meaning `CampaignChannel` and `CampaignType` alone have only weak
+  discriminative power for *individual-level* conversion, even though the
+  group-level rates in the bar chart differ by type
+- This is a common pattern: a variable can show a real, statistically
+  significant *group-level* effect while still being a weak *individual-level*
+  predictor, because most of the variation in who converts is driven by
+  other factors (behavioral, demographic) not included in this AO by design
 
-::: {.column width="36%"}
-
-### Best Model: XGBoost
-
-| Metric | Test Result |
-|---|---:|
-| ROC AUC | **0.844** |
-| Accuracy | **91.8%** |
-| Sensitivity | **99.5%** |
-| Specificity | **37.4%** |
-
-**Confusion Matrix**
-
-|  | Actual Yes | Actual No |
-|---|---:|---:|
-| Predicted Yes | **1,396** | 124 |
-| Predicted No | 7 | **74** |
-
-:::
-::::
-
-::: takeaway
-XGBoost achieved the highest cross-validation ROC AUC and the strongest overall test performance.
-:::
-
-::: notes
-XGBoost had the highest cross-validation ROC AUC at 0.818. On the test set, ROC AUC increased to 0.844. Sensitivity was very high, although non-converters remained more difficult to identify.
-:::
-
-## AO2: Interpretation — Variable Importance & SHAP
-
-:::: columns
-::: {.column width="48%"}
+## AO2: Interpretation
 
 ```{r}
-#| echo: false
-#| fig-width: 6.6
+#| label: ao2-interpret
+#| fig-width: 8
 #| fig-height: 4.5
 
-ao2_vip_plot <- ao2_xgb_fit |>
-  workflows::extract_fit_parsnip() |>
-  vip::vip(
-    num_features = 10
-  ) +
-  labs(
-    title = "XGBoost Variable Importance",
-    x = "Importance",
-    y = NULL
-  ) +
-  theme_minimal(base_size = 11)
+# Association test: does Channel matter? Does Type matter?
+chisq.test(table(campaign_data$CampaignChannel, campaign_data$Conversion))
+chisq.test(table(campaign_data$CampaignType, campaign_data$Conversion))
 
-print(ao2_vip_plot)
+# Logistic regression coefficients (log-odds effect of each channel/type)
+ao2_fit_glm |> tidy() |> arrange(p.value)
+
+# Variable importance from Random Forest
+ao2_fit_rf |> extract_fit_parsnip() |> vip(num_features = 10)
 ```
 
-:::
-
-::: {.column width="48%"}
-
-```{r}
-#| echo: false
-#| fig-width: 6.6
-#| fig-height: 4.5
-
-ao2_shap_values <- predict(
-  ao2_xgb_engine,
-  ao2_xgb_matrix,
-  predcontrib = TRUE
-)
-
-ao2_shap_matrix <- as.matrix(
-  ao2_shap_values
-)
-
-ao2_shap_matrix <- ao2_shap_matrix[
-  ,
-  !colnames(ao2_shap_matrix) %in% c("BIAS", "(Intercept)"),
-  drop = FALSE
-]
-
-ao2_shap_importance <- data.frame(
-  Feature = colnames(ao2_shap_matrix),
-  Mean_Abs_SHAP = colMeans(abs(ao2_shap_matrix))
-) |>
-  arrange(desc(Mean_Abs_SHAP)) |>
-  slice_head(n = 10)
-
-ggplot(
-  ao2_shap_importance,
-  aes(
-    x = reorder(Feature, Mean_Abs_SHAP),
-    y = Mean_Abs_SHAP
-  )
-) +
-  geom_col(fill = "#2e75b6", width = 0.65) +
-  coord_flip() +
-  labs(
-    title = "SHAP Feature Importance",
-    x = NULL,
-    y = "Mean Absolute SHAP"
-  ) +
-  theme_minimal(base_size = 10.5)
-```
-
-:::
-::::
-
-::: takeaway
-SHAP identified `CampaignType_Conversion`, EmailClicks, PreviousPurchases, ClickThroughRate, LoyaltyPoints, and PagesPerVisit as leading contributors to prediction.
-:::
-
-::: notes
-Variable importance and SHAP provide complementary views of the fitted XGBoost model. The interpretation indicates that campaign, engagement, and customer-history information contributed strongly to prediction.
-:::
-
-## AO2: Interpretation — Partial Dependence Plot
-
-```{r}
-#| echo: false
-#| fig-width: 9
-#| fig-height: 4.8
-
-ao2_adspend_values <- seq(
-  from = quantile(ao2_train$AdSpend, 0.05),
-  to = quantile(ao2_train$AdSpend, 0.95),
-  length.out = 30
-)
-
-ao2_pdp_list <- lapply(
-  ao2_adspend_values,
-  function(value) {
-
-    temp_data <- ao2_train
-    temp_data$AdSpend <- value
-
-    temp_baked <- bake(
-      ao2_xgb_prep,
-      new_data = temp_data
-    )
-
-    temp_matrix <- as.matrix(
-      temp_baked[, ao2_predictor_names]
-    )
-
-    temp_prediction <- predict(
-      ao2_xgb_engine,
-      xgboost::xgb.DMatrix(temp_matrix)
-    )
-
-    data.frame(
-      AdSpend = value,
-      Predicted_Conversion = mean(temp_prediction)
-    )
-  }
-)
-
-ao2_pdp <- bind_rows(ao2_pdp_list)
-
-ggplot(
-  ao2_pdp,
-  aes(
-    x = AdSpend,
-    y = Predicted_Conversion
-  )
-) +
-  geom_line(
-    linewidth = 1.2,
-    color = "#1f3864"
-  ) +
-  labs(
-    title = "Partial Dependence of Conversion on Ad Spend",
-    x = "Ad Spend",
-    y = "Average Predicted Conversion Probability"
-  ) +
-  theme_minimal(base_size = 13)
-```
-
-::: takeaway
-Predicted conversion remained fairly stable at lower spending levels, increased around **Ad Spend ≈ 5,000**, and then remained relatively high.
-:::
-
-::: notes
-The PDP describes the relationship learned by the model. It should not be interpreted as evidence that increasing ad spend directly causes conversion.
-:::
+- The chi-square test for `CampaignChannel` is **not significant**
+  (χ² ≈ 2.78, p ≈ 0.59) — channel choice alone shows no reliable
+  association with conversion
+- The chi-square test for `CampaignType` **is significant**
+  (χ² ≈ 84.5, p < 0.001) — campaign type is meaningfully associated with
+  conversion, driven mainly by the `"Conversion"` type having a
+  substantially higher rate (~93%) than `Awareness`/`Consideration`/`Retention`
+  (~84–88%)
+- Random Forest variable importance should echo this: dummy variables for
+  `CampaignType` should rank above `CampaignChannel` dummies
 
 ## AO2: Summary Findings
 
-:::: columns
-::: {.column width="48%"}
-
-### Model Findings
-
-- **XGBoost** was the strongest model.
-- CV ROC AUC = **0.818**
-- Test ROC AUC = **0.844**
-- Very high sensitivity = **99.5%**
-- Non-converters remained harder to identify.
-
-:::
-
-::: {.column width="48%"}
-
-### Interpretation
-
-- Campaign type contributed strongly.
-- Email engagement was important.
-- Previous purchases and loyalty contributed.
-- Website engagement also mattered.
-- Demographics contributed less.
-
-:::
-::::
-
-::: key-message
-**Customer actions, campaign context, and purchase history were more useful for predicting conversion than demographic characteristics alone.**
-:::
-
-::: notes
-Overall, XGBoost provided the strongest predictive performance. The interpretation results indicate that campaign context, engagement, and previous customer behavior were more useful than demographics for predicting conversion.
+::: incremental
+- **Campaign type** has a statistically significant relationship with
+  conversion; **campaign channel** does not, at least on its own
+- The higher conversion rate for `CampaignType == "Conversion"` campaigns
+  is expected by design (these campaigns are explicitly built to drive
+  conversion) but confirms the labeling is consistent with actual outcomes
+- Despite the significant group-level association, channel + type alone
+  give weak individual-level predictive power (ROC AUC ≈ 0.53) — they are
+  not sufficient by themselves to identify which specific customers will
+  convert
+- **Business implication:** channel selection appears interchangeable for
+  conversion purposes in this data, so budget allocation decisions should
+  weigh cost-per-channel and other KPIs rather than assuming any one
+  channel converts better; campaign *type* mix (more bottom-funnel
+  "Conversion"-type campaigns) is the lever more strongly tied to
+  conversion outcomes
 :::
 
 <!-- =================================================================== -->
@@ -1442,7 +1143,7 @@ RO4: How do email engagement (EmailOpens and EmailClicks) and previous purchases
 #| fig-height: 4.5
 
 # Keep only variables required by RO4
-ao4_data <- marketing |>
+ao4_data <- raw_data |>
   select(
     EmailOpens,
     EmailClicks,
@@ -1814,210 +1515,509 @@ ggplot(
 <!-- =================================================================== -->
 
 
-# Analytics Objective 5 — *Jungmin Woo*
 
-## AO5: Campaign Performance {.smaller}
+# Analytics Objective 5 — *Sora Hosoda*
 
-> RO5: Analyze the impact of marketing channels and campaign types on
-> customer conversion.
+```{r}
+#| label: ao2-hidden-setup
+#| include: false
+#| warning: false
+#| message: false
 
-- **IV (predictors):** `CampaignChannel`, `CampaignType` (both categorical)
-- **DV (target):** `Conversion` (binary — Yes / No)
-- **Problem type:** Classification
-- Only these two categorical variables are used as predictors, so this AO
-  isolates the effect of *channel* and *campaign type* on conversion,
-  independent of demographic or on-site behavior variables
+set.seed(2025)
+
+ao2_data <- raw_data |>
+  transmute(
+    Age,
+    Gender = factor(Gender),
+    Income,
+    CampaignChannel = factor(CampaignChannel),
+    CampaignType = factor(CampaignType),
+    AdSpend,
+    ClickThroughRate,
+    WebsiteVisits,
+    PagesPerVisit,
+    TimeOnSite,
+    SocialShares,
+    EmailOpens,
+    EmailClicks,
+    PreviousPurchases,
+    LoyaltyPoints,
+    Conversion = factor(
+      Conversion,
+      levels = c(1, 0),
+      labels = c("Yes", "No")
+    )
+  )
+
+set.seed(617)
+
+ao2_split <- initial_split(
+  ao2_data,
+  prop = 0.80,
+  strata = Conversion
+)
+
+ao2_train <- training(ao2_split)
+ao2_test <- testing(ao2_split)
+
+ao2_xgb_rec <- recipe(
+  Conversion ~ .,
+  data = ao2_train
+) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_novel(all_nominal_predictors()) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
+  step_zv(all_predictors())
+
+ao2_xgb_spec <- boost_tree(
+  trees = 300,
+  tree_depth = 6,
+  learn_rate = 0.05,
+  min_n = 30
+) |>
+  set_engine("xgboost") |>
+  set_mode("classification")
+
+ao2_xgb_wf <- workflow() |>
+  add_recipe(ao2_xgb_rec) |>
+  add_model(ao2_xgb_spec)
+
+set.seed(2025)
+
+ao2_xgb_fit <- fit(
+  ao2_xgb_wf,
+  data = ao2_train
+)
+
+ao2_xgb_prep <- prep(
+  ao2_xgb_rec,
+  training = ao2_train
+)
+
+ao2_xgb_baked <- bake(
+  ao2_xgb_prep,
+  new_data = ao2_train
+)
+
+ao2_predictor_names <- setdiff(
+  names(ao2_xgb_baked),
+  "Conversion"
+)
+
+ao2_xgb_matrix <- as.matrix(
+  ao2_xgb_baked[, ao2_predictor_names]
+)
+
+ao2_xgb_engine <- workflows::extract_fit_parsnip(
+  ao2_xgb_fit
+)$fit
+```
+
+## AO5: Predictive Analytics
+
+> **Research Objective:** To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
+
+- **Outcome:** `Conversion` (Yes / No)
+- **Predictors:** 15 customer and marketing variables
+- **Problem type:** Binary classification
+- **Analytical focus:** Compare multiple classification models and identify the strongest predictors of conversion.
+
+::: key-message
+Which factors are most useful for predicting customer conversion when all major predictor groups are considered together?
+:::
+
+::: notes
+This objective combines customer demographics, campaign information, engagement variables, and purchase history in one overall predictive analysis.
+:::
 
 ## AO5: Machine Learning Methods to be Used
 
 ::: {.panel-tabset}
 
 ### Regression-Focused Methods
-- Not applicable (outcome is categorical)
+
+- Not used because `Conversion` is a binary outcome.
+- The analysis focuses on classification models.
 
 ### Classification-Focused Methods
-- Logistic Regression
-- Decision Tree (classification)
+
+- **Logistic Regression** — interpretable baseline classification model
+- **Decision Tree** — captures nonlinear decision rules and interactions
 
 ### Ensembles
-- Random Forest (classification)
 
+- **Random Forest** — combines many decision trees
+- **XGBoost** — sequentially builds trees to improve prediction
+
+:::
+
+::: takeaway
+Four models were compared to determine whether ensemble methods improve prediction over simpler classification models.
 :::
 
 ## AO5: Data Wrangling & Visualization
 
-```{r}
-#| label: ao2-wrangle
-
-# Missing-value check on the relevant columns
-campaign_data |>
-  select(CampaignChannel, CampaignType, Conversion) |>
-  summarise(across(everything(), ~ sum(is.na(.))))
-
-# Baseline conversion rate by Channel x Type
-ao2_baseline <- campaign_data |>
-  group_by(CampaignChannel, CampaignType) |>
-  summarise(
-    ConversionRate = mean(Conversion == "Yes"),
-    N = n(),
-    .groups = "drop"
-  ) |>
-  arrange(desc(ConversionRate))
-
-ao2_baseline
-```
+:::: columns
+::: {.column width="56%"}
 
 ```{r}
-#| label: ao2-viz
-#| fig-width: 9
-#| fig-height: 5
+#| echo: false
 
-ggplot(ao2_baseline, aes(x = CampaignChannel, y = ConversionRate, fill = CampaignType)) +
-  geom_col(position = "dodge") +
-  scale_y_continuous(labels = scales::percent) +
-  labs(
-    title = "Conversion Rate by Channel, Segmented by Campaign Type",
-    x = "Campaign Channel", y = "Conversion Rate", fill = "Campaign Type"
-  ) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+ao2_predictor_groups <- tibble::tribble(
+  ~Category, ~Variables,
+  "Customer Profile", "Age, Gender, Income",
+  "Campaign", "Channel, Type, Ad Spend",
+  "Engagement", "CTR, Website Visits, Pages per Visit, Time on Site, Email Activity, Social Shares",
+  "History", "Previous Purchases, Loyalty Points"
+)
+
+knitr::kable(
+  ao2_predictor_groups,
+  col.names = c("Predictor Group", "Variables")
+)
 ```
 
-- No missing values in `CampaignChannel`, `CampaignType`, or `Conversion`
-- The bar chart shows very little spread **across channels** within each campaign type (bars of the same color are roughly the same height), but a clear gap **across campaign types**: `CampaignType == "Conversion"` sits noticeably higher (~92–94%) than `Awareness`, `Consideration`, or `Retention` (~84–88%) in every channel
-- This suggests campaign *type* may matter more than campaign *channel* for conversion — tested formally below
+:::
+
+::: {.column width="40%"}
+
+```{r}
+#| echo: false
+
+ao2_balance <- tibble::tribble(
+  ~Conversion, ~Customers, ~Share,
+  "Yes", "7,012", "87.6%",
+  "No", "988", "12.4%"
+)
+
+knitr::kable(ao2_balance)
+```
+
+**Class imbalance:** About 88% of customers converted.
+
+:::
+::::
+
+::: takeaway
+Because the outcome is highly imbalanced, ROC AUC was prioritized over accuracy when comparing models.
+:::
+
+::: notes
+The analysis uses 15 predictors from four broad categories. Conversion is highly imbalanced, so accuracy alone can be misleading.
+:::
 
 ## AO5: Model Fitting
 
-```{r}
-#| label: ao2-fit
+:::: columns
+::: {.column width="48%"}
 
-set.seed(2026)
+### Data Splitting
 
-ao2_data <- campaign_data |>
-  select(CampaignChannel, CampaignType, Conversion)
+- **80% training / 20% testing**
+- Stratified by `Conversion`
+- Test data held out for final evaluation
 
-# --- Data splitting ---
-ao2_split <- initial_split(ao2_data, prop = 0.8, strata = Conversion)
-ao2_train <- training(ao2_split)
-ao2_test  <- testing(ao2_split)
-ao2_folds <- vfold_cv(ao2_train, v = 5, strata = Conversion)
+### Recipe Creation
 
-# --- Recipe ---
-ao2_recipe <- recipe(Conversion ~ CampaignChannel + CampaignType, data = ao2_train) |>
-  step_dummy(all_nominal_predictors()) |>
-  step_zv(all_predictors())
+- Median imputation
+- Novel and unknown factor handling
+- Dummy encoding
+- Zero-variance removal
 
-# --- Model specifications ---
-ao2_spec_glm <- logistic_reg() |>
-  set_engine("glm") |>
-  set_mode("classification")
+:::
 
-ao2_spec_tree <- decision_tree(cost_complexity = tune(), tree_depth = tune()) |>
-  set_engine("rpart") |>
-  set_mode("classification")
+::: {.column width="48%"}
 
-ao2_spec_rf <- rand_forest(trees = 500, min_n = tune()) |>
-  set_engine("ranger", importance = "permutation") |>
-  set_mode("classification")
+### Model Specification
 
-# --- Workflows ---
-ao2_wf_glm  <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_glm)
-ao2_wf_tree <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_tree)
-ao2_wf_rf   <- workflow() |> add_recipe(ao2_recipe) |> add_model(ao2_spec_rf)
+1. Logistic Regression
+2. Decision Tree
+3. Random Forest
+4. XGBoost
 
-# --- Tuning ---
-ao2_tree_res <- tune_grid(ao2_wf_tree, resamples = ao2_folds, grid = 5,
-                           metrics = metric_set(roc_auc))
-ao2_rf_res   <- tune_grid(ao2_wf_rf, resamples = ao2_folds, grid = 5,
-                           metrics = metric_set(roc_auc))
+### Model Selection
 
-# --- Finalize + fit ---
-ao2_fit_glm  <- fit(ao2_wf_glm, data = ao2_train)
-ao2_fit_tree <- finalize_workflow(ao2_wf_tree, select_best(ao2_tree_res, metric = "roc_auc")) |>
-  fit(data = ao2_train)
-ao2_fit_rf   <- finalize_workflow(ao2_wf_rf, select_best(ao2_rf_res, metric = "roc_auc")) |>
-  fit(data = ao2_train)
-```
+- **10-fold stratified cross-validation**
+- Hyperparameter tuning for ensemble models
+- Primary metric: **ROC AUC**
+
+:::
+::::
+
+::: key-message
+The same training data and cross-validation framework were used to compare model performance.
+:::
+
+::: notes
+The data was split before model development. Cross-validation was conducted within the training data, while the test set remained untouched until final evaluation.
+:::
 
 ## AO5: Prediction & Model Evaluation
 
+:::: columns
+::: {.column width="60%"}
+
 ```{r}
-#| label: ao2-eval
+#| echo: false
+#| fig-width: 7.5
+#| fig-height: 4.6
 
-ao2_class_metrics <- metric_set(accuracy, roc_auc, f_meas)
-
-ao2_results <- bind_rows(
-  augment(ao2_fit_glm,  new_data = ao2_test) |> mutate(model = "Logistic Regression"),
-  augment(ao2_fit_tree, new_data = ao2_test) |> mutate(model = "Decision Tree"),
-  augment(ao2_fit_rf,   new_data = ao2_test) |> mutate(model = "Random Forest")
+ao2_cv <- tibble::tribble(
+  ~Model, ~ROC_AUC,
+  "XGBoost", 0.818,
+  "Random Forest", 0.795,
+  "Logistic Regression", 0.779,
+  "Decision Tree", 0.699
 )
 
-ao2_metrics <- ao2_results |>
-  group_by(model) |>
-  ao2_class_metrics(truth = Conversion, estimate = .pred_class, .pred_Yes, event_level = "second")
-
-ao2_metrics
+ggplot(
+  ao2_cv,
+  aes(
+    x = reorder(Model, ROC_AUC),
+    y = ROC_AUC
+  )
+) +
+  geom_col(fill = "#1f3864", width = 0.65) +
+  geom_text(
+    aes(label = sprintf("%.3f", ROC_AUC)),
+    hjust = -0.15,
+    size = 4.5
+  ) +
+  coord_flip() +
+  scale_y_continuous(
+    limits = c(0, 0.90),
+    expand = expansion(mult = c(0, 0.02))
+  ) +
+  labs(
+    title = "10-Fold Cross-Validation ROC AUC",
+    x = NULL,
+    y = "Mean ROC AUC"
+  ) +
+  theme_minimal(base_size = 13)
 ```
 
-- All three models land at essentially the same accuracy (~87.6%), which
-  matches the overall base rate of `Conversion == "Yes"` in the data — the
-  models are not beating a "always predict Yes" baseline on accuracy alone
-- ROC AUC is low (~0.53–0.54, just above the 0.50 random-guess line),
-  meaning `CampaignChannel` and `CampaignType` alone have only weak
-  discriminative power for *individual-level* conversion, even though the
-  group-level rates in the bar chart differ by type
-- This is a common pattern: a variable can show a real, statistically
-  significant *group-level* effect while still being a weak *individual-level*
-  predictor, because most of the variation in who converts is driven by
-  other factors (behavioral, demographic) not included in this AO by design
+:::
 
-## AO5: Interpretation
+::: {.column width="36%"}
+
+### Best Model: XGBoost
+
+| Metric | Test Result |
+|---|---:|
+| ROC AUC | **0.844** |
+| Accuracy | **91.8%** |
+| Sensitivity | **99.5%** |
+| Specificity | **37.4%** |
+
+**Confusion Matrix**
+
+|  | Actual Yes | Actual No |
+|---|---:|---:|
+| Predicted Yes | **1,396** | 124 |
+| Predicted No | 7 | **74** |
+
+:::
+::::
+
+::: takeaway
+XGBoost achieved the highest cross-validation ROC AUC and the strongest overall test performance.
+:::
+
+::: notes
+XGBoost had the highest cross-validation ROC AUC at 0.818. On the test set, ROC AUC increased to 0.844. Sensitivity was very high, although non-converters remained more difficult to identify.
+:::
+
+## AO5: Interpretation — Variable Importance & SHAP
+
+:::: columns
+::: {.column width="48%"}
 
 ```{r}
-#| label: ao2-interpret
-#| fig-width: 8
+#| echo: false
+#| fig-width: 6.6
 #| fig-height: 4.5
 
-# Association test: does Channel matter? Does Type matter?
-chisq.test(table(campaign_data$CampaignChannel, campaign_data$Conversion))
-chisq.test(table(campaign_data$CampaignType, campaign_data$Conversion))
+ao2_vip_plot <- ao2_xgb_fit |>
+  workflows::extract_fit_parsnip() |>
+  vip::vip(
+    num_features = 10
+  ) +
+  labs(
+    title = "XGBoost Variable Importance",
+    x = "Importance",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 11)
 
-# Logistic regression coefficients (log-odds effect of each channel/type)
-ao2_fit_glm |> tidy() |> arrange(p.value)
-
-# Variable importance from Random Forest
-ao2_fit_rf |> extract_fit_parsnip() |> vip(num_features = 10)
+print(ao2_vip_plot)
 ```
 
-- The chi-square test for `CampaignChannel` is **not significant**
-  (χ² ≈ 2.78, p ≈ 0.59) — channel choice alone shows no reliable
-  association with conversion
-- The chi-square test for `CampaignType` **is significant**
-  (χ² ≈ 84.5, p < 0.001) — campaign type is meaningfully associated with
-  conversion, driven mainly by the `"Conversion"` type having a
-  substantially higher rate (~93%) than `Awareness`/`Consideration`/`Retention`
-  (~84–88%)
-- Random Forest variable importance should echo this: dummy variables for
-  `CampaignType` should rank above `CampaignChannel` dummies
+:::
+
+::: {.column width="48%"}
+
+```{r}
+#| echo: false
+#| fig-width: 6.6
+#| fig-height: 4.5
+
+ao2_shap_values <- predict(
+  ao2_xgb_engine,
+  ao2_xgb_matrix,
+  predcontrib = TRUE
+)
+
+ao2_shap_matrix <- as.matrix(
+  ao2_shap_values
+)
+
+ao2_shap_matrix <- ao2_shap_matrix[
+  ,
+  !colnames(ao2_shap_matrix) %in% c("BIAS", "(Intercept)"),
+  drop = FALSE
+]
+
+ao2_shap_importance <- data.frame(
+  Feature = colnames(ao2_shap_matrix),
+  Mean_Abs_SHAP = colMeans(abs(ao2_shap_matrix))
+) |>
+  arrange(desc(Mean_Abs_SHAP)) |>
+  slice_head(n = 10)
+
+ggplot(
+  ao2_shap_importance,
+  aes(
+    x = reorder(Feature, Mean_Abs_SHAP),
+    y = Mean_Abs_SHAP
+  )
+) +
+  geom_col(fill = "#2e75b6", width = 0.65) +
+  coord_flip() +
+  labs(
+    title = "SHAP Feature Importance",
+    x = NULL,
+    y = "Mean Absolute SHAP"
+  ) +
+  theme_minimal(base_size = 10.5)
+```
+
+:::
+::::
+
+::: takeaway
+SHAP identified `CampaignType_Conversion`, EmailClicks, PreviousPurchases, ClickThroughRate, LoyaltyPoints, and PagesPerVisit as leading contributors to prediction.
+:::
+
+::: notes
+Variable importance and SHAP provide complementary views of the fitted XGBoost model. The interpretation indicates that campaign, engagement, and customer-history information contributed strongly to prediction.
+:::
+
+## AO5: Interpretation — Partial Dependence Plot
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 4.8
+
+ao2_adspend_values <- seq(
+  from = quantile(ao2_train$AdSpend, 0.05),
+  to = quantile(ao2_train$AdSpend, 0.95),
+  length.out = 30
+)
+
+ao2_pdp_list <- lapply(
+  ao2_adspend_values,
+  function(value) {
+
+    temp_data <- ao2_train
+    temp_data$AdSpend <- value
+
+    temp_baked <- bake(
+      ao2_xgb_prep,
+      new_data = temp_data
+    )
+
+    temp_matrix <- as.matrix(
+      temp_baked[, ao2_predictor_names]
+    )
+
+    temp_prediction <- predict(
+      ao2_xgb_engine,
+      xgboost::xgb.DMatrix(temp_matrix)
+    )
+
+    data.frame(
+      AdSpend = value,
+      Predicted_Conversion = mean(temp_prediction)
+    )
+  }
+)
+
+ao2_pdp <- bind_rows(ao2_pdp_list)
+
+ggplot(
+  ao2_pdp,
+  aes(
+    x = AdSpend,
+    y = Predicted_Conversion
+  )
+) +
+  geom_line(
+    linewidth = 1.2,
+    color = "#1f3864"
+  ) +
+  labs(
+    title = "Partial Dependence of Conversion on Ad Spend",
+    x = "Ad Spend",
+    y = "Average Predicted Conversion Probability"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+::: takeaway
+Predicted conversion remained fairly stable at lower spending levels, increased around **Ad Spend ≈ 5,000**, and then remained relatively high.
+:::
+
+::: notes
+The PDP describes the relationship learned by the model. It should not be interpreted as evidence that increasing ad spend directly causes conversion.
+:::
 
 ## AO5: Summary Findings
 
-::: incremental
-- **Campaign type** has a statistically significant relationship with
-  conversion; **campaign channel** does not, at least on its own
-- The higher conversion rate for `CampaignType == "Conversion"` campaigns
-  is expected by design (these campaigns are explicitly built to drive
-  conversion) but confirms the labeling is consistent with actual outcomes
-- Despite the significant group-level association, channel + type alone
-  give weak individual-level predictive power (ROC AUC ≈ 0.53) — they are
-  not sufficient by themselves to identify which specific customers will
-  convert
-- **Business implication:** channel selection appears interchangeable for
-  conversion purposes in this data, so budget allocation decisions should
-  weigh cost-per-channel and other KPIs rather than assuming any one
-  channel converts better; campaign *type* mix (more bottom-funnel
-  "Conversion"-type campaigns) is the lever more strongly tied to
-  conversion outcomes
+:::: columns
+::: {.column width="48%"}
+
+### Model Findings
+
+- **XGBoost** was the strongest model.
+- CV ROC AUC = **0.818**
+- Test ROC AUC = **0.844**
+- Very high sensitivity = **99.5%**
+- Non-converters remained harder to identify.
+
+:::
+
+::: {.column width="48%"}
+
+### Interpretation
+
+- Campaign type contributed strongly.
+- Email engagement was important.
+- Previous purchases and loyalty contributed.
+- Website engagement also mattered.
+- Demographics contributed less.
+
+:::
+::::
+
+::: key-message
+**Customer actions, campaign context, and purchase history were more useful for predicting conversion than demographic characteristics alone.**
+:::
+
+::: notes
+Overall, XGBoost provided the strongest predictive performance. The interpretation results indicate that campaign context, engagement, and previous customer behavior were more useful than demographics for predicting conversion.
 :::
 
 # Conclusion
