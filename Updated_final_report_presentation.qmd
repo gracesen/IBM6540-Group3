@@ -25,49 +25,84 @@ format:
     width: 1600
     height: 900
     margin: 0.06
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## Table of Contents
 
 ::: incremental
-1. Introduction
-2. Population / Sample & Sample Characteristics
-3. Analytics Objective 1 — *Yushan Huang* - Marketing Investment & On-Site Engagement
-4. Analytics Objective 2 — *Jungmin Woo* - To analyze the impact of marketing channels and campaign types on customer conversion
-5. Analytics Objective 3 — *Grace Sen* - Customer Demographics and Conversion
-6. Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and Purchase Behavior
-7. Analytics Objective 5 — *Sora Hosoda* - Predictive Analytics
-8. Conclusion
-9. Appendix
+1.  Introduction
+2.  Population / Sample & Sample Characteristics
+3.  Analytics Objective 1 — *Yushan Huang* - Marketing Investment &
+    On-Site Engagement
+4.  Analytics Objective 2 — *Jungmin Woo* - To analyze the impact of
+    marketing channels and campaign types on customer conversion
+5.  Analytics Objective 3 — *Grace Sen* - Customer Demographics and
+    Conversion
+6.  Analytics Objective 4 — *Sandy Zhu* - Customer Interaction and
+    Purchase Behavior
+7.  Analytics Objective 5 — *Sora Hosoda* - Predictive Analytics
+8.  Conclusion
+9.  Appendix
 :::
 
 # Introduction
 
 ## Problem Definition
 
-Digital marketing teams use multiple campaign channels and campaign strategies to reach customers, but it is not always clear which approaches are most strongly associated with customer conversion. Without data-driven evidence, marketing resources may be allocated to channels or campaign types that do not meaningfully improve conversion outcomes.
+Digital marketing teams use multiple campaign channels and campaign
+strategies to reach customers, but it is not always clear which
+approaches are most strongly associated with customer conversion.
+Without data-driven evidence, marketing resources may be allocated to
+channels or campaign types that do not meaningfully improve conversion
+outcomes.
 
-- **Context:** The dataset represents multi-channel digital marketing campaigns, including Social Media, Email, PPC, Referral, and SEO.
-- **Business gap:** Marketers need clearer evidence about which campaign characteristics and customer behaviors are associated with successful conversion.
-- **Decision need:** Identify actionable patterns that can support better campaign design, targeting, engagement, and resource allocation.
+- **Context:** The dataset represents multi-channel digital marketing
+  campaigns, including Social Media, Email, PPC, Referral, and SEO.
+- **Business gap:** Marketers need clearer evidence about which campaign
+  characteristics and customer behaviors are associated with successful
+  conversion.
+- **Decision need:** Identify actionable patterns that can support
+  better campaign design, targeting, engagement, and resource
+  allocation.
 
 ## Research Objectives
 
 ::: incremental
-- **RO1:** To evaluate whether advertising spend and on-site engagement signals can identify customers who are more likely to convert. 
+- **RO1:** To evaluate whether advertising spend and on-site engagement
+  signals can identify customers who are more likely to convert.
 - **RO2:** Impact of Campaign Channel and Type on Customer Conversion
-- **RO3:** To examine whether customer demographic characteristics influence the likelihood of digital marketing conversion.
-- **RO4:** To evaluate how customer interaction and previous purchasing behavior relate to short-term marketing response and customer conversion, and to identify the most important behavioral drivers of conversion.
-- **RO5:** To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
+- **RO3:** To examine whether customer demographic characteristics
+  influence the likelihood of digital marketing conversion.
+- **RO4:** To evaluate how customer interaction and previous purchasing
+  behavior relate to short-term marketing response and customer
+  conversion, and to identify the most important behavioral drivers of
+  conversion.
+- **RO5:** To develop a predictive model that identifies the most useful
+  factors for predicting customer conversion using customer
+  demographics, campaign information, engagement variables, and purchase
+  history.
 :::
 
 ## Importance of the Research
 
-- **Improve marketing effectiveness:** Understanding the factors associated with conversion can help marketers make more informed decisions about campaign strategy and customer targeting.
-- **Support resource allocation:** Comparing marketing channels and campaign types can reveal whether conversion outcomes differ meaningfully across marketing approaches.
-- **Generate customer insights:** Examining engagement, purchasing behavior, and loyalty-related measures can help explain how customers respond throughout the digital marketing journey.
-- **Apply predictive analytics:** Classification and ensemble methods provide a systematic way to evaluate conversion patterns and assess how useful marketing and behavioral variables are for prediction.
-- **Business stakeholders:** The findings can support marketing managers, campaign planners, and customer analytics teams when designing and evaluating future campaigns.
+- **Improve marketing effectiveness:** Understanding the factors
+  associated with conversion can help marketers make more informed
+  decisions about campaign strategy and customer targeting.
+- **Support resource allocation:** Comparing marketing channels and
+  campaign types can reveal whether conversion outcomes differ
+  meaningfully across marketing approaches.
+- **Generate customer insights:** Examining engagement, purchasing
+  behavior, and loyalty-related measures can help explain how customers
+  respond throughout the digital marketing journey.
+- **Apply predictive analytics:** Classification and ensemble methods
+  provide a systematic way to evaluate conversion patterns and assess
+  how useful marketing and behavioral variables are for prediction.
+- **Business stakeholders:** The findings can support marketing
+  managers, campaign planners, and customer analytics teams when
+  designing and evaluating future campaigns.
 
 # Population / Sample
 
@@ -92,9 +127,12 @@ raw_data <- read_csv("digital_marketing_campaign_dataset.csv", show_col_types = 
 glimpse(raw_data)
 ```
 
-- **Population:** Customers exposed to the company's digital marketing campaigns
-- **Sample:** `r format(nrow(raw_data), big.mark = ",")` customers, `r ncol(raw_data)` variables
-- **Sampling frame / period:** The dataset does not provide a specific campaign period or geographic region.
+- **Population:** Customers exposed to the company's digital marketing
+  campaigns
+- **Sample:** `r format(nrow(raw_data), big.mark = ",")` customers,
+  `r ncol(raw_data)` variables
+- **Sampling frame / period:** The dataset does not provide a specific
+  campaign period or geographic region.
 
 ## Data Cleaning
 
@@ -152,26 +190,39 @@ p4 <- ggplot(campaign_data, aes(Gender, fill = Conversion)) +
 p3 + p4
 ```
 
-- Overall conversion rate: `r scales::percent(mean(campaign_data$Conversion == "Yes"))` (class-imbalanced — relevant for classification AOs)
-- The sample includes customers across a wide range of ages and income levels.
-- Customers were exposed to five digital marketing channels: Social Media, Email, PPC, Referral, and SEO.
-- The overall conversion rate is approximately **87.7%**, indicating a strong class imbalance that should be considered when evaluating classification models.
+- Overall conversion rate:
+  `r scales::percent(mean(campaign_data$Conversion == "Yes"))`
+  (class-imbalanced — relevant for classification AOs)
+- The sample includes customers across a wide range of ages and income
+  levels.
+- Customers were exposed to five digital marketing channels: Social
+  Media, Email, PPC, Referral, and SEO.
+- The overall conversion rate is approximately **87.7%**, indicating a
+  strong class imbalance that should be considered when evaluating
+  classification models.
 
 <!-- =================================================================== -->
+
 <!-- AO1 — Marketing Investment & On-Site Engagement                         -->
+
 <!-- =================================================================== -->
 
 # Analytics Objective 1 — *Yushan Huang*
 
 ## AO1: Marketing Investment & On-Site Engagement
 
-> **RO1:** To evaluate whether advertising spend and on-site engagement signals can identify customers who are more likely to convert.
+> **RO1:** To evaluate whether advertising spend and on-site engagement
+> signals can identify customers who are more likely to convert.
 
 - **Target variable:** `Conversion` (No / Yes)
-- **Predictors:** `AdSpend`, `ClickThroughRate`, `WebsiteVisits`, `PagesPerVisit`, `TimeOnSite`
+- **Predictors:** `AdSpend`, `ClickThroughRate`, `WebsiteVisits`,
+  `PagesPerVisit`, `TimeOnSite`
 - **Problem type:** Binary classification
-- **Business question:** Can marketing investment and website engagement help identify higher-conversion customers?
-- **Why this AO is distinct:** It focuses on **paid investment + on-site engagement**, rather than campaign type/channel (AO2), demographics (AO3), email/purchase behavior (AO4), or the all-variable model (AO5).
+- **Business question:** Can marketing investment and website engagement
+  help identify higher-conversion customers?
+- **Why this AO is distinct:** It focuses on **paid investment + on-site
+  engagement**, rather than campaign type/channel (AO2), demographics
+  (AO3), email/purchase behavior (AO4), or the all-variable model (AO5).
 
 ## AO1: Data Wrangling & Exploratory Analysis
 
@@ -200,9 +251,15 @@ p_ao1_time <- ggplot(ao1_data, aes(Conversion, TimeOnSite, fill = Conversion)) +
 p_ao1_spend + p_ao1_time
 ```
 
-- The outcome remains strongly imbalanced: about **`r scales::percent(mean(ao1_data$Conversion == "Yes"), accuracy = 0.1)`** of customers converted.
-- The exploratory plots test whether converted customers tend to show different levels of marketing investment exposure and on-site engagement.
-- Because raw group differences may overlap substantially, machine-learning models are used to evaluate their **combined** predictive value.
+- The outcome remains strongly imbalanced: about
+  **`r scales::percent(mean(ao1_data$Conversion == "Yes"), accuracy = 0.1)`**
+  of customers converted.
+- The exploratory plots test whether converted customers tend to show
+  different levels of marketing investment exposure and on-site
+  engagement.
+- Because raw group differences may overlap substantially,
+  machine-learning models are used to evaluate their **combined**
+  predictive value.
 
 ## AO1: Predictor Relationships
 
@@ -232,31 +289,38 @@ ggplot(ao1_corr, aes(x = reorder(Predictor, Conversion01), y = Conversion01)) +
   )
 ```
 
-- These associations are descriptive and should **not** be interpreted as causal effects.
-- In this dataset, `AdSpend`, `ClickThroughRate`, and `TimeOnSite` show useful univariate signals for conversion, while the model tests whether combining all five predictors improves discrimination.
+- These associations are descriptive and should **not** be interpreted
+  as causal effects.
+- In this dataset, `AdSpend`, `ClickThroughRate`, and `TimeOnSite` show
+  useful univariate signals for conversion, while the model tests
+  whether combining all five predictors improves discrimination.
 
 ## AO1: Machine Learning Methods
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ### Logistic Regression
+
 - Interpretable classification baseline
-- Estimates the direction of each predictor's relationship with conversion while holding the others constant
-- Numeric predictors are normalized before fitting so coefficient magnitudes are more comparable
+- Estimates the direction of each predictor's relationship with
+  conversion while holding the others constant
+- Numeric predictors are normalized before fitting so coefficient
+  magnitudes are more comparable
 
 ### Decision Tree
+
 - Captures non-linear thresholds and interactions
 - Easy to explain visually
 - Complexity is tuned with cross-validation to reduce overfitting
 
 ### Random Forest
+
 - Ensemble of many classification trees
 - Captures non-linear patterns and interactions more flexibly
 - Permutation importance is used to rank the five predictors
-
 :::
 
-**Primary evaluation metric:** ROC AUC, because accuracy is inflated by the high baseline conversion rate.
+**Primary evaluation metric:** ROC AUC, because accuracy is inflated by
+the high baseline conversion rate.
 
 ## AO1: Model Fitting
 
@@ -323,7 +387,8 @@ ao1_rf_fit <- finalize_workflow(
 
 - **Split:** 80% training / 20% testing, stratified by conversion
 - **Cross-validation:** 5 folds on the training set
-- **Preprocessing:** zero-variance removal + normalization of numeric predictors
+- **Preprocessing:** zero-variance removal + normalization of numeric
+  predictors
 - **Tuning:** Decision Tree and Random Forest tuned using ROC AUC
 
 ## AO1: Prediction & Model Evaluation
@@ -368,9 +433,14 @@ ao1_results |>
   labs(title = "AO1 ROC Curves — Held-Out Test Set")
 ```
 
-- The majority-class baseline accuracy is about **`r scales::percent(mean(ao1_test$Conversion == "Yes"), accuracy = 0.1)`**, so accuracy alone is not sufficient.
-- ROC AUC evaluates whether the models correctly **rank higher-risk and lower-risk customers** across classification thresholds.
-- AUC materially above 0.50 indicates that marketing investment and on-site engagement contain predictive signal beyond simply guessing the majority class.
+- The majority-class baseline accuracy is about
+  **`r scales::percent(mean(ao1_test$Conversion == "Yes"), accuracy = 0.1)`**,
+  so accuracy alone is not sufficient.
+- ROC AUC evaluates whether the models correctly **rank higher-risk and
+  lower-risk customers** across classification thresholds.
+- AUC materially above 0.50 indicates that marketing investment and
+  on-site engagement contain predictive signal beyond simply guessing
+  the majority class.
 
 ## AO1: Interpretation — Logistic Regression
 
@@ -397,9 +467,12 @@ ggplot(ao1_odds, aes(x = estimate, y = term)) +
   )
 ```
 
-- Odds ratios above 1 indicate higher conversion odds as the predictor increases; values below 1 indicate lower odds.
-- Standardization makes the five numeric predictors more comparable on the same plot.
-- This interpretation describes **predictive association**, not a causal return on advertising spend.
+- Odds ratios above 1 indicate higher conversion odds as the predictor
+  increases; values below 1 indicate lower odds.
+- Standardization makes the five numeric predictors more comparable on
+  the same plot.
+- This interpretation describes **predictive association**, not a causal
+  return on advertising spend.
 
 ## AO1: Interpretation — Random Forest Importance & PDP
 
@@ -443,24 +516,45 @@ p_ao1_pdp <- ggplot(ao1_pdp_spend, aes(AdSpend, PredictedConversion)) +
 p_ao1_vip + p_ao1_pdp
 ```
 
-- **Variable importance** identifies which investment/engagement signals contribute most to the Random Forest's predictions.
-- The **partial dependence plot (PDP)** shows the model's average predicted conversion probability as `AdSpend` changes while the observed distribution of the other predictors is retained.
-- A nonlinear or flattening PDP would suggest that the relationship is more complex than “spend more = convert more.”
+- **Variable importance** identifies which investment/engagement signals
+  contribute most to the Random Forest's predictions.
+- The **partial dependence plot (PDP)** shows the model's average
+  predicted conversion probability as `AdSpend` changes while the
+  observed distribution of the other predictors is retained.
+- A nonlinear or flattening PDP would suggest that the relationship is
+  more complex than “spend more = convert more.”
 
 ## AO1: Summary Findings
 
 ::: incremental
-- **Focused predictive signal:** Advertising spend and on-site engagement variables provide meaningful information for distinguishing converters from non-converters, but they do not perfectly separate the two groups.
-- **Use ROC AUC, not accuracy alone:** The dataset's approximately **87.7% conversion rate** makes majority-class accuracy deceptively high.
-- **Model comparison matters:** Logistic Regression provides an interpretable baseline, while Decision Tree and Random Forest test whether nonlinear thresholds and interactions improve discrimination.
-- **Interpretability:** Standardized odds ratios, Random Forest variable importance, and the AdSpend PDP show which signals matter and how predicted conversion changes across spending levels.
-- **Business implication:** Use advertising spend together with engagement signals when prioritizing customers or evaluating campaigns; avoid assuming that higher spend by itself guarantees higher conversion.
-- **Caution:** These results are predictive associations from an observational dataset and should not be interpreted as proof that increasing advertising spend *causes* conversion.
+- **Focused predictive signal:** Advertising spend and on-site
+  engagement variables provide meaningful information for distinguishing
+  converters from non-converters, but they do not perfectly separate the
+  two groups.
+- **Use ROC AUC, not accuracy alone:** The dataset's approximately
+  **87.7% conversion rate** makes majority-class accuracy deceptively
+  high.
+- **Model comparison matters:** Logistic Regression provides an
+  interpretable baseline, while Decision Tree and Random Forest test
+  whether nonlinear thresholds and interactions improve discrimination.
+- **Interpretability:** Standardized odds ratios, Random Forest variable
+  importance, and the AdSpend PDP show which signals matter and how
+  predicted conversion changes across spending levels.
+- **Business implication:** Use advertising spend together with
+  engagement signals when prioritizing customers or evaluating
+  campaigns; avoid assuming that higher spend by itself guarantees
+  higher conversion.
+- **Caution:** These results are predictive associations from an
+  observational dataset and should not be interpreted as proof that
+  increasing advertising spend *causes* conversion.
 :::
 
 <!-- =================================================================== -->
+
 <!-- AO2 —The impact of marketing channels and campaign types on customer conversion -->
+
 <!-- =================================================================== -->
+
 # Analytics Objective 2 — *Jungmin Woo*
 
 ## AO2: Campaign Performance {.smaller}
@@ -468,27 +562,29 @@ p_ao1_vip + p_ao1_pdp
 > RO2: Analyze the impact of marketing channels and campaign types on
 > customer conversion.
 
-- **IV (predictors):** `CampaignChannel`, `CampaignType` (both categorical)
+- **IV (predictors):** `CampaignChannel`, `CampaignType` (both
+  categorical)
 - **DV (target):** `Conversion` (binary — Yes / No)
 - **Problem type:** Classification
-- Only these two categorical variables are used as predictors, so this AO
-  isolates the effect of *channel* and *campaign type* on conversion,
+- Only these two categorical variables are used as predictors, so this
+  AO isolates the effect of *channel* and *campaign type* on conversion,
   independent of demographic or on-site behavior variables
 
 ## AO2: Machine Learning Methods to be Used
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ### Regression-Focused Methods
+
 - Not applicable (outcome is categorical)
 
 ### Classification-Focused Methods
+
 - Logistic Regression
 - Decision Tree (classification)
 
 ### Ensembles
-- Random Forest (classification)
 
+- Random Forest (classification)
 :::
 
 ## AO2: Data Wrangling & Visualization
@@ -529,9 +625,16 @@ ggplot(ao2_baseline, aes(x = CampaignChannel, y = ConversionRate, fill = Campaig
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
-- No missing values in `CampaignChannel`, `CampaignType`, or `Conversion`
-- The bar chart shows very little spread **across channels** within each campaign type (bars of the same color are roughly the same height), but a clear gap **across campaign types**: `CampaignType == "Conversion"` sits noticeably higher (~92–94%) than `Awareness`, `Consideration`, or `Retention` (~84–88%) in every channel
-- This suggests campaign *type* may matter more than campaign *channel* for conversion — tested formally below
+- No missing values in `CampaignChannel`, `CampaignType`, or
+  `Conversion`
+- The bar chart shows very little spread **across channels** within each
+  campaign type (bars of the same color are roughly the same height),
+  but a clear gap **across campaign types**:
+  `CampaignType == "Conversion"` sits noticeably higher (\~92–94%) than
+  `Awareness`, `Consideration`, or `Retention` (\~84–88%) in every
+  channel
+- This suggests campaign *type* may matter more than campaign *channel*
+  for conversion — tested formally below
 
 ## AO2: Model Fitting
 
@@ -606,17 +709,19 @@ ao2_metrics <- ao2_results |>
 ao2_metrics
 ```
 
-- All three models land at essentially the same accuracy (~87.6%), which
-  matches the overall base rate of `Conversion == "Yes"` in the data — the
-  models are not beating a "always predict Yes" baseline on accuracy alone
-- ROC AUC is low (~0.53–0.54, just above the 0.50 random-guess line),
+- All three models land at essentially the same accuracy (\~87.6%),
+  which matches the overall base rate of `Conversion == "Yes"` in the
+  data — the models are not beating a "always predict Yes" baseline on
+  accuracy alone
+- ROC AUC is low (\~0.53–0.54, just above the 0.50 random-guess line),
   meaning `CampaignChannel` and `CampaignType` alone have only weak
-  discriminative power for *individual-level* conversion, even though the
-  group-level rates in the bar chart differ by type
+  discriminative power for *individual-level* conversion, even though
+  the group-level rates in the bar chart differ by type
 - This is a common pattern: a variable can show a real, statistically
-  significant *group-level* effect while still being a weak *individual-level*
-  predictor, because most of the variation in who converts is driven by
-  other factors (behavioral, demographic) not included in this AO by design
+  significant *group-level* effect while still being a weak
+  *individual-level* predictor, because most of the variation in who
+  converts is driven by other factors (behavioral, demographic) not
+  included in this AO by design
 
 ## AO2: Interpretation
 
@@ -636,43 +741,45 @@ ao2_fit_glm |> tidy() |> arrange(p.value)
 ao2_fit_rf |> extract_fit_parsnip() |> vip(num_features = 10)
 ```
 
-- The chi-square test for `CampaignChannel` is **not significant**
-  (χ² ≈ 2.78, p ≈ 0.59) — channel choice alone shows no reliable
-  association with conversion
-- The chi-square test for `CampaignType` **is significant**
-  (χ² ≈ 84.5, p < 0.001) — campaign type is meaningfully associated with
+- The chi-square test for `CampaignChannel` is **not significant** (χ² ≈
+  2.78, p ≈ 0.59) — channel choice alone shows no reliable association
+  with conversion
+- The chi-square test for `CampaignType` **is significant** (χ² ≈ 84.5,
+  p \< 0.001) — campaign type is meaningfully associated with
   conversion, driven mainly by the `"Conversion"` type having a
-  substantially higher rate (~93%) than `Awareness`/`Consideration`/`Retention`
-  (~84–88%)
-- Random Forest variable importance should echo this: dummy variables for
-  `CampaignType` should rank above `CampaignChannel` dummies
+  substantially higher rate (\~93%) than
+  `Awareness`/`Consideration`/`Retention` (\~84–88%)
+- Random Forest variable importance should echo this: dummy variables
+  for `CampaignType` should rank above `CampaignChannel` dummies
 
 ## AO2: Summary Findings
 
 ::: incremental
 - **Campaign type** has a statistically significant relationship with
   conversion; **campaign channel** does not, at least on its own
-- The higher conversion rate for `CampaignType == "Conversion"` campaigns
-  is expected by design (these campaigns are explicitly built to drive
-  conversion) but confirms the labeling is consistent with actual outcomes
+- The higher conversion rate for `CampaignType == "Conversion"`
+  campaigns is expected by design (these campaigns are explicitly built
+  to drive conversion) but confirms the labeling is consistent with
+  actual outcomes
 - Despite the significant group-level association, channel + type alone
-  give weak individual-level predictive power (ROC AUC ≈ 0.53) — they are
-  not sufficient by themselves to identify which specific customers will
-  convert
-- **Business implication:** channel selection appears interchangeable for
-  conversion purposes in this data, so budget allocation decisions should
-  weigh cost-per-channel and other KPIs rather than assuming any one
-  channel converts better; campaign *type* mix (more bottom-funnel
+  give weak individual-level predictive power (ROC AUC ≈ 0.53) — they
+  are not sufficient by themselves to identify which specific customers
+  will convert
+- **Business implication:** channel selection appears interchangeable
+  for conversion purposes in this data, so budget allocation decisions
+  should weigh cost-per-channel and other KPIs rather than assuming any
+  one channel converts better; campaign *type* mix (more bottom-funnel
   "Conversion"-type campaigns) is the lever more strongly tied to
   conversion outcomes
 :::
 
 <!-- =================================================================== -->
+
 <!-- AO3 — Customer Demographics and Conversion                            -->
+
 <!-- =================================================================== -->
 
 # Analytics Objective 3 — *Grace Sen*
-
 
 ```{r}
 #| label: ao3-hidden-setup
@@ -865,7 +972,8 @@ rf_importance <- enframe(
 
 ### Analytics Objective 3
 
-Examine whether **age, gender, and income** are associated with—and useful for predicting—customer conversion.
+Examine whether **age, gender, and income** are associated with—and
+useful for predicting—customer conversion.
 
 ::: objective-line
 **Predictors:** Age · Gender · Income\
@@ -873,7 +981,10 @@ Examine whether **age, gender, and income** are associated with—and useful for
 :::
 
 ::: notes
-My analytics objective asks whether customer demographics help explain and predict conversion. I use age, gender, and income as predictors and conversion as the binary outcome. The analysis compares an interpretable logistic regression with a nonlinear ensemble model.
+My analytics objective asks whether customer demographics help explain
+and predict conversion. I use age, gender, and income as predictors and
+conversion as the binary outcome. The analysis compares an interpretable
+logistic regression with a nonlinear ensemble model.
 :::
 
 ## AO3: Data Wrangling & Visualization — Sample and Outcome
@@ -899,18 +1010,25 @@ ggplot(outcome_summary, aes(x = conversion, y = proportion, fill = conversion)) 
 :::: {.column width="48%"}
 - **`r (nrow(ao3))` customers**
 - **`r sum(is.na(ao3))` missing values** in AO3 variables
-- Conversion rate: `r scales::percent(mean(ao3$conversion == "Converted"), accuracy = 0.1)`
+- Conversion rate:
+  `r scales::percent(mean(ao3$conversion == "Converted"), accuracy = 0.1)`
 
 ::: key-message
-Accuracy alone is misleading: predicting “Converted” for everyone already produces high accuracy.
+Accuracy alone is misleading: predicting “Converted” for everyone
+already produces high accuracy.
 :::
 
-**Primary metrics:** ROC AUC, PR AUC, balanced accuracy, sensitivity, and specificity.
+**Primary metrics:** ROC AUC, PR AUC, balanced accuracy, sensitivity,
+and specificity.
 ::::
 ::::::
 
 ::: notes
-The dataset contains 8,000 customers and no missing values in the four variables used here. Conversion is highly imbalanced. Because almost nine out of ten customers converted, accuracy can look strong even when a model does not separate the two classes. I therefore emphasize discrimination and class-balanced metrics.
+The dataset contains 8,000 customers and no missing values in the four
+variables used here. Conversion is highly imbalanced. Because almost
+nine out of ten customers converted, accuracy can look strong even when
+a model does not separate the two classes. I therefore emphasize
+discrimination and class-balanced metrics.
 :::
 
 ## AO3: Data Wrangling & Visualization — Income and Gender
@@ -947,11 +1065,16 @@ ggplot(gender_rates, aes(x = gender, y = conversion_rate, fill = gender)) +
 :::::
 
 ::: takeaway
-Neither income nor gender appears to distinguish converters from non-converters on its own.
+Neither income nor gender appears to distinguish converters from
+non-converters on its own.
 :::
 
 ::: notes
-The descriptive patterns already suggest weak demographic effects. Income medians and distributions substantially overlap across outcomes, while conversion rates are nearly equal across gender groups. These plots are descriptive, so the models next test whether the variables work better jointly.
+The descriptive patterns already suggest weak demographic effects.
+Income medians and distributions substantially overlap across outcomes,
+while conversion rates are nearly equal across gender groups. These
+plots are descriptive, so the models next test whether the variables
+work better jointly.
 :::
 
 ## AO3: Data Wrangling & Visualization — Age
@@ -966,11 +1089,14 @@ ggplot(ao3, aes(x = age, color = conversion)) +
 ```
 
 ::: takeaway
-Age provides little visible univariate discrimination across nearly the entire range.
+Age provides little visible univariate discrimination across nearly the
+entire range.
 :::
 
 ::: notes
-The age density curves overlap across almost the full distribution. Taken together, the exploratory results provide little evidence that any single demographic variable strongly separates the outcome classes.
+The age density curves overlap across almost the full distribution.
+Taken together, the exploratory results provide little evidence that any
+single demographic variable strongly separates the outcome classes.
 :::
 
 ## AO3: Machine Learning Methods & Model Fitting {.smaller}
@@ -1007,7 +1133,11 @@ The majority-class prediction serves as the benchmark.
 ::::::
 
 ::: notes
-Logistic regression provides interpretable adjusted effects. Random forest tests whether nonlinear patterns or interactions add predictive value. The split is stratified, all preprocessing is learned on the training data only, and the test data remains untouched until final evaluation.
+Logistic regression provides interpretable adjusted effects. Random
+forest tests whether nonlinear patterns or interactions add predictive
+value. The split is stratified, all preprocessing is learned on the
+training data only, and the test data remains untouched until final
+evaluation.
 :::
 
 ## AO3: Prediction & Model Evaluation
@@ -1050,16 +1180,21 @@ Better-performing model: **`r best_model_row$model`**
 
 ROC AUC: `r scales::number(best_model_row$roc_auc, accuracy = 0.001)`
 
-Balanced accuracy: `r scales::number(best_model_row$bal_accuracy, accuracy = 0.001)`
+Balanced accuracy:
+`r scales::number(best_model_row$bal_accuracy, accuracy = 0.001)`
 
 ::: key-message
-Scores near 0.50 indicate little ability to rank converters above non-converters.
+Scores near 0.50 indicate little ability to rank converters above
+non-converters.
 :::
 ::::
 ::::::
 
 ::: notes
-On the held-out test set, the best demographic model has an ROC AUC and balanced accuracy near 0.50. That is approximately chance-level performance. High raw accuracy would not change this conclusion because the converted class dominates the sample.
+On the held-out test set, the best demographic model has an ROC AUC and
+balanced accuracy near 0.50. That is approximately chance-level
+performance. High raw accuracy would not change this conclusion because
+the converted class dominates the sample.
 :::
 
 ## AO3: Interpretation — Logistic Regression
@@ -1084,13 +1219,18 @@ ggplot(log_odds_ratios, aes(x = odds_ratio, y = reorder(term, odds_ratio))) +
 
 ::: {.column width="34%"}
 - Odds ratios near **1.00** indicate weak adjusted associations.
-- Intervals crossing **1.00** indicate limited evidence after controlling for the other demographics.
+- Intervals crossing **1.00** indicate limited evidence after
+  controlling for the other demographics.
 - Association does not imply causation.
 :::
 :::::
 
 ::: notes
-The logistic regression provides adjusted effects. Age and income are standardized, so each odds ratio represents a one-standard-deviation increase. Effects close to one, particularly with confidence intervals crossing one, support the same substantive conclusion as the held-out model evaluation.
+The logistic regression provides adjusted effects. Age and income are
+standardized, so each odds ratio represents a one-standard-deviation
+increase. Effects close to one, particularly with confidence intervals
+crossing one, support the same substantive conclusion as the held-out
+model evaluation.
 :::
 
 ## AO3: Interpretation — Random Forest
@@ -1110,13 +1250,17 @@ ggplot(rf_importance, aes(x = importance, y = reorder(feature, importance))) +
 Permutation importance ranks predictors **within the fitted forest**.
 
 ::: key-message
-A weak model can still rank weak predictors. Importance is relative and does not establish a business driver or causal effect.
+A weak model can still rank weak predictors. Importance is relative and
+does not establish a business driver or causal effect.
 :::
 ::::
 ::::::
 
 ::: notes
-The random forest still produces a ranking because permutation importance is relative. We should not describe the top-ranked demographic as a strong driver when the entire model performs near chance. Variable importance also does not establish causality.
+The random forest still produces a ranking because permutation
+importance is relative. We should not describe the top-ranked
+demographic as a strong driver when the entire model performs near
+chance. Variable importance also does not establish causality.
 :::
 
 ## AO3: Summary Findings
@@ -1139,51 +1283,65 @@ The random forest still produces a ranking because permutation importance is rel
 :::
 :::::
 
-**Takeaway:** Customer behavior is more promising than demographics for predicting conversion.
+**Takeaway:** Customer behavior is more promising than demographics for
+predicting conversion.
 
 ::: notes
-The overall conclusion is that demographics alone do not meaningfully distinguish converters from non-converters. The business should prioritize engagement variables such as website visits, time on site, email activity, prior purchases, and campaign interactions. Demographics may remain useful for segmentation and fairness monitoring, but not as the primary targeting inputs.
+The overall conclusion is that demographics alone do not meaningfully
+distinguish converters from non-converters. The business should
+prioritize engagement variables such as website visits, time on site,
+email activity, prior purchases, and campaign interactions. Demographics
+may remain useful for segmentation and fairness monitoring, but not as
+the primary targeting inputs.
 :::
 
-
 <!-- =================================================================== -->
+
 <!-- AO4 —  Customer Interaction, Purchase Behavior, and Conversion                           -->
-<!-- =================================================================== -->
 
+<!-- =================================================================== -->
 
 # Analytics Objective 4 — *Sandy Zhu*
 
 ## AO4: Customer Interaction, Purchase Behavior, and Conversion
 
-RO4: How do email engagement (EmailOpens and EmailClicks) and previous purchases affect customer conversion, and which factor is the most important for predicting conversion?
+RO4: How do email engagement (EmailOpens and EmailClicks) and previous
+purchases affect customer conversion, and which factor is the most
+important for predicting conversion?
 
 - **Target variables:** `ConversionRate`, `Conversion` (No / Yes)
-- **Independent variables:** `EmailOpens`, `EmailClicks`, `PreviousPurchases`
+- **Independent variables:** `EmailOpens`, `EmailClicks`,
+  `PreviousPurchases`
 - **Problem type:** Regression and binary classification
 
----
+------------------------------------------------------------------------
 
-- **Business question:** How do email engagement and previous purchases relate to customer conversion?
-- **Analytical focus:** Compare models and identify which customer behavior is most important for predicting conversion.
+- **Business question:** How do email engagement and previous purchases
+  relate to customer conversion?
+- **Analytical focus:** Compare models and identify which customer
+  behavior is most important for predicting conversion.
 
 ## AO4: Machine Learning Methods to be Used
 
 ### Regression-Focused Method
 
-- **Linear Regression** — predicts `ConversionRate` as a continuous marketing outcome.
+- **Linear Regression** — predicts `ConversionRate` as a continuous
+  marketing outcome.
 
 ### Classification-Focused Method
 
-- **Logistic Regression** — predicts whether a customer converts (`Yes` / `No`).
+- **Logistic Regression** — predicts whether a customer converts (`Yes`
+  / `No`).
 
----
+------------------------------------------------------------------------
 
 ### Ensemble Method
 
-- **Random Forest** — captures nonlinear patterns and identifies important behavioral predictors.
-
+- **Random Forest** — captures nonlinear patterns and identifies
+  important behavioral predictors.
 
 ## AO4: Data Wrangling & Visualization
+
 ```{r}
 #| label: ao4-wrangle
 #| fig-width: 10
@@ -1272,13 +1430,19 @@ patchwork::wrap_plots(
   ncol = 2
 )
 ```
-- The dataset contains **8,000 customers**, with no missing values in the variables used for RO4.
-- Approximately **87.7%** of customers converted, indicating substantial class imbalance in the binary outcome.
-- Customers who converted generally show higher `EmailOpens`, `EmailClicks`, and `PreviousPurchases` than non-converters.
-- These descriptive patterns suggest that customer interaction and prior purchasing behavior may contain useful information for predicting conversion.
 
+- The dataset contains **8,000 customers**, with no missing values in
+  the variables used for RO4.
+- Approximately **87.7%** of customers converted, indicating substantial
+  class imbalance in the binary outcome.
+- Customers who converted generally show higher `EmailOpens`,
+  `EmailClicks`, and `PreviousPurchases` than non-converters.
+- These descriptive patterns suggest that customer interaction and prior
+  purchasing behavior may contain useful information for predicting
+  conversion.
 
 ## AO4: Customer Behavior × Conversion Pattern
+
 ```{r}
 #| label: ao4-behavior-pattern
 #| fig-width: 10
@@ -1308,11 +1472,14 @@ ggplot(ao4_behavior,
   ) +
   theme_minimal()
 ```
-- Converted customers show **higher email engagement** (median opens: **10 vs. 6**; clicks: **5 vs. 3**).
-- They also have **more previous purchases**, suggesting stronger engagement is associated with conversion.
 
+- Converted customers show **higher email engagement** (median opens:
+  **10 vs. 6**; clicks: **5 vs. 3**).
+- They also have **more previous purchases**, suggesting stronger
+  engagement is associated with conversion.
 
 ## AO4: Model Fitting
+
 ```{r}
 #| label: ao4-fit
 
@@ -1398,13 +1565,16 @@ ao4_fit_rf <- workflow() |>
   ) |>
   fit(data = ao4_train)
 ```
+
 - **Split:** 80% training / 20% testing, stratified by `Conversion`
 - **Regression model:** Linear Regression predicts `ConversionRate`
-- **Classification models:** Logistic Regression, Decision Tree, and Random Forest predict `Conversion`
-- **Purpose:** compare interpretable linear/classification methods with tree-based and ensemble approaches.
-
+- **Classification models:** Logistic Regression, Decision Tree, and
+  Random Forest predict `Conversion`
+- **Purpose:** compare interpretable linear/classification methods with
+  tree-based and ensemble approaches.
 
 ## AO4: Prediction & Model Evaluation
+
 ```{r}
 #| label: ao4-eval
 #| fig-width: 8
@@ -1490,14 +1660,19 @@ ao4_results |>
     title = "ROC Curves — AO4 Classification Models"
   )
 ```
-- **Regression:** Linear Regression is evaluated using RMSE, MAE, and R² to determine how well customer behavior predicts `ConversionRate`.
 
----
+- **Regression:** Linear Regression is evaluated using RMSE, MAE, and R²
+  to determine how well customer behavior predicts `ConversionRate`.
 
-- **Classification:** Logistic Regression, Decision Tree, and Random Forest are compared using the same held-out test set.
-- Because approximately **87.7% of customers converted**, accuracy alone may overstate model performance.
-- **ROC AUC is the primary classification metric**, because it measures how well each model distinguishes converters from non-converters across probability thresholds.
+------------------------------------------------------------------------
 
+- **Classification:** Logistic Regression, Decision Tree, and Random
+  Forest are compared using the same held-out test set.
+- Because approximately **87.7% of customers converted**, accuracy alone
+  may overstate model performance.
+- **ROC AUC is the primary classification metric**, because it measures
+  how well each model distinguishes converters from non-converters
+  across probability thresholds.
 
 ## AO4: Interpretation
 
@@ -1535,33 +1710,35 @@ ggplot(
   ) +
   theme_minimal()
 ```
-- **PreviousPurchases** is the strongest predictor, followed by **EmailOpens** and **EmailClicks**.
-- Purchase history appears to be more useful for predicting conversion than email engagement alone.
-- The model has **moderate predictive power (ROC AUC = 0.656)**, so the results should be interpreted with caution.
+
+- **PreviousPurchases** is the strongest predictor, followed by
+  **EmailOpens** and **EmailClicks**.
+- Purchase history appears to be more useful for predicting conversion
+  than email engagement alone.
+- The model has **moderate predictive power (ROC AUC = 0.656)**, so the
+  results should be interpreted with caution.
 
 ::: incremental
-
 ## AO4: Summary Findings
 
-- Higher **EmailOpens, EmailClicks, and PreviousPurchases** are associated with higher conversion.
+- Higher **EmailOpens, EmailClicks, and PreviousPurchases** are
+  associated with higher conversion.
 
-- **PreviousPurchases** is the strongest predictor, followed by **EmailOpens** and **EmailClicks**.
+- **PreviousPurchases** is the strongest predictor, followed by
+  **EmailOpens** and **EmailClicks**.
 
-- Model performance is **moderate (ROC AUC = 0.656)**; the **87.6% conversion rate** also means accuracy alone can be misleading.
+- Model performance is **moderate (ROC AUC = 0.656)**; the **87.6%
+  conversion rate** also means accuracy alone can be misleading.
 
-- **Business implication:** use both **purchase history and email engagement** to identify customers with higher conversion potential.
-
+- **Business implication:** use both **purchase history and email
+  engagement** to identify customers with higher conversion potential.
 :::
 
-
-
-
-
 <!-- =================================================================== -->
+
 <!-- AO5 — Predictive Analytics  -->
+
 <!-- =================================================================== -->
-
-
 
 # Analytics Objective 5 — *Sora Hosoda*
 
@@ -1664,25 +1841,31 @@ ao2_xgb_engine <- workflows::extract_fit_parsnip(
 
 ## AO5: Predictive Analytics
 
-> **Research Objective:** To develop a predictive model that identifies the most useful factors for predicting customer conversion using customer demographics, campaign information, engagement variables, and purchase history.
+> **Research Objective:** To develop a predictive model that identifies
+> the most useful factors for predicting customer conversion using
+> customer demographics, campaign information, engagement variables, and
+> purchase history.
 
 - **Outcome:** `Conversion` (Yes / No)
 - **Predictors:** 15 customer and marketing variables
 - **Problem type:** Binary classification
-- **Analytical focus:** Compare multiple classification models and identify the strongest predictors of conversion.
+- **Analytical focus:** Compare multiple classification models and
+  identify the strongest predictors of conversion.
 
 ::: key-message
-Which factors are most useful for predicting customer conversion when all major predictor groups are considered together?
+Which factors are most useful for predicting customer conversion when
+all major predictor groups are considered together?
 :::
 
 ::: notes
-This objective combines customer demographics, campaign information, engagement variables, and purchase history in one overall predictive analysis.
+This objective combines customer demographics, campaign information,
+engagement variables, and purchase history in one overall predictive
+analysis.
 :::
 
 ## AO5: Machine Learning Methods to be Used
 
-::: {.panel-tabset}
-
+::: panel-tabset
 ### Regression-Focused Methods
 
 - Not used because `Conversion` is a binary outcome.
@@ -1697,18 +1880,17 @@ This objective combines customer demographics, campaign information, engagement 
 
 - **Random Forest** — combines many decision trees
 - **XGBoost** — sequentially builds trees to improve prediction
-
 :::
 
 ::: takeaway
-Four models were compared to determine whether ensemble methods improve prediction over simpler classification models.
+Four models were compared to determine whether ensemble methods improve
+prediction over simpler classification models.
 :::
 
 ## AO5: Data Wrangling & Visualization
 
-:::: columns
+::::: columns
 ::: {.column width="56%"}
-
 ```{r}
 #| echo: false
 
@@ -1725,11 +1907,9 @@ knitr::kable(
   col.names = c("Predictor Group", "Variables")
 )
 ```
-
 :::
 
 ::: {.column width="40%"}
-
 ```{r}
 #| echo: false
 
@@ -1743,23 +1923,23 @@ knitr::kable(ao2_balance)
 ```
 
 **Class imbalance:** About 88% of customers converted.
-
 :::
-::::
+:::::
 
 ::: takeaway
-Because the outcome is highly imbalanced, ROC AUC was prioritized over accuracy when comparing models.
+Because the outcome is highly imbalanced, ROC AUC was prioritized over
+accuracy when comparing models.
 :::
 
 ::: notes
-The analysis uses 15 predictors from four broad categories. Conversion is highly imbalanced, so accuracy alone can be misleading.
+The analysis uses 15 predictors from four broad categories. Conversion
+is highly imbalanced, so accuracy alone can be misleading.
 :::
 
 ## AO5: Model Fitting
 
-:::: columns
+::::: columns
 ::: {.column width="48%"}
-
 ### Data Splitting
 
 - **80% training / 20% testing**
@@ -1772,40 +1952,39 @@ The analysis uses 15 predictors from four broad categories. Conversion is highly
 - Novel and unknown factor handling
 - Dummy encoding
 - Zero-variance removal
-
 :::
 
 ::: {.column width="48%"}
-
 ### Model Specification
 
-1. Logistic Regression
-2. Decision Tree
-3. Random Forest
-4. XGBoost
+1.  Logistic Regression
+2.  Decision Tree
+3.  Random Forest
+4.  XGBoost
 
 ### Model Selection
 
 - **10-fold stratified cross-validation**
 - Hyperparameter tuning for ensemble models
 - Primary metric: **ROC AUC**
-
 :::
-::::
+:::::
 
 ::: key-message
-The same training data and cross-validation framework were used to compare model performance.
+The same training data and cross-validation framework were used to
+compare model performance.
 :::
 
 ::: notes
-The data was split before model development. Cross-validation was conducted within the training data, while the test set remained untouched until final evaluation.
+The data was split before model development. Cross-validation was
+conducted within the training data, while the test set remained
+untouched until final evaluation.
 :::
 
 ## AO5: Prediction & Model Evaluation
 
-:::: columns
+::::: columns
 ::: {.column width="60%"}
-
 ```{r}
 #| echo: false
 #| fig-width: 7.5
@@ -1844,43 +2023,42 @@ ggplot(
   ) +
   theme_minimal(base_size = 13)
 ```
-
 :::
 
 ::: {.column width="36%"}
-
 ### Best Model: XGBoost
 
-| Metric | Test Result |
-|---|---:|
-| ROC AUC | **0.844** |
-| Accuracy | **91.8%** |
-| Sensitivity | **99.5%** |
-| Specificity | **37.4%** |
+| Metric      | Test Result |
+|-------------|------------:|
+| ROC AUC     |   **0.844** |
+| Accuracy    |   **91.8%** |
+| Sensitivity |   **99.5%** |
+| Specificity |   **37.4%** |
 
 **Confusion Matrix**
 
-|  | Actual Yes | Actual No |
-|---|---:|---:|
-| Predicted Yes | **1,396** | 124 |
-| Predicted No | 7 | **74** |
-
+|               | Actual Yes | Actual No |
+|---------------|-----------:|----------:|
+| Predicted Yes |  **1,396** |       124 |
+| Predicted No  |          7 |    **74** |
 :::
-::::
+:::::
 
 ::: takeaway
-XGBoost achieved the highest cross-validation ROC AUC and the strongest overall test performance.
+XGBoost achieved the highest cross-validation ROC AUC and the strongest
+overall test performance.
 :::
 
 ::: notes
-XGBoost had the highest cross-validation ROC AUC at 0.818. On the test set, ROC AUC increased to 0.844. Sensitivity was very high, although non-converters remained more difficult to identify.
+XGBoost had the highest cross-validation ROC AUC at 0.818. On the test
+set, ROC AUC increased to 0.844. Sensitivity was very high, although
+non-converters remained more difficult to identify.
 :::
 
 ## AO5: Interpretation — Variable Importance & SHAP
 
-:::: columns
+::::: columns
 ::: {.column width="48%"}
-
 ```{r}
 #| echo: false
 #| fig-width: 6.6
@@ -1900,11 +2078,9 @@ ao2_vip_plot <- ao2_xgb_fit |>
 
 print(ao2_vip_plot)
 ```
-
 :::
 
 ::: {.column width="48%"}
-
 ```{r}
 #| echo: false
 #| fig-width: 6.6
@@ -1949,16 +2125,19 @@ ggplot(
   ) +
   theme_minimal(base_size = 10.5)
 ```
-
 :::
-::::
+:::::
 
 ::: takeaway
-SHAP identified `CampaignType_Conversion`, EmailClicks, PreviousPurchases, ClickThroughRate, LoyaltyPoints, and PagesPerVisit as leading contributors to prediction.
+SHAP identified `CampaignType_Conversion`, EmailClicks,
+PreviousPurchases, ClickThroughRate, LoyaltyPoints, and PagesPerVisit as
+leading contributors to prediction.
 :::
 
 ::: notes
-Variable importance and SHAP provide complementary views of the fitted XGBoost model. The interpretation indicates that campaign, engagement, and customer-history information contributed strongly to prediction.
+Variable importance and SHAP provide complementary views of the fitted
+XGBoost model. The interpretation indicates that campaign, engagement,
+and customer-history information contributed strongly to prediction.
 :::
 
 ## AO5: Interpretation — Partial Dependence Plot
@@ -2024,18 +2203,21 @@ ggplot(
 ```
 
 ::: takeaway
-Predicted conversion remained fairly stable at lower spending levels, increased around **Ad Spend ≈ 5,000**, and then remained relatively high.
+Predicted conversion remained fairly stable at lower spending levels,
+increased around **Ad Spend ≈ 5,000**, and then remained relatively
+high.
 :::
 
 ::: notes
-The PDP describes the relationship learned by the model. It should not be interpreted as evidence that increasing ad spend directly causes conversion.
+The PDP describes the relationship learned by the model. It should not
+be interpreted as evidence that increasing ad spend directly causes
+conversion.
 :::
 
 ## AO5: Summary Findings
 
-:::: columns
+::::: columns
 ::: {.column width="48%"}
-
 ### Model Findings
 
 - **XGBoost** was the strongest model.
@@ -2043,11 +2225,9 @@ The PDP describes the relationship learned by the model. It should not be interp
 - Test ROC AUC = **0.844**
 - Very high sensitivity = **99.5%**
 - Non-converters remained harder to identify.
-
 :::
 
 ::: {.column width="48%"}
-
 ### Interpretation
 
 - Campaign type contributed strongly.
@@ -2055,50 +2235,71 @@ The PDP describes the relationship learned by the model. It should not be interp
 - Previous purchases and loyalty contributed.
 - Website engagement also mattered.
 - Demographics contributed less.
-
 :::
-::::
+:::::
 
 ::: key-message
-**Customer actions, campaign context, and purchase history were more useful for predicting conversion than demographic characteristics alone.**
+**Customer actions, campaign context, and purchase history were more
+useful for predicting conversion than demographic characteristics
+alone.**
 :::
 
 ::: notes
-Overall, XGBoost provided the strongest predictive performance. The interpretation results indicate that campaign context, engagement, and previous customer behavior were more useful than demographics for predicting conversion.
+Overall, XGBoost provided the strongest predictive performance. The
+interpretation results indicate that campaign context, engagement, and
+previous customer behavior were more useful than demographics for
+predicting conversion.
 :::
 
 # Conclusion
 
 ## Key Findings
 
-- **Campaign type mattered more than channel:** Conversion-focused campaigns had the highest conversion rates.
-- **Customer behavior was useful for prediction:** Engagement, previous purchases, loyalty, and website activity contributed to conversion prediction.
-- **Demographics had limited predictive value:** Age, gender, and income were weaker predictors.
-- **XGBoost performed best:** CV ROC AUC = **0.818** and test ROC AUC = **0.844**.
-- **Class imbalance mattered:** About **88%** of customers converted, so accuracy alone was not sufficient.
+- **Campaign type mattered more than channel:** Conversion-focused
+  campaigns had the highest conversion rates.
+- **Customer behavior was useful for prediction:** Engagement, previous
+  purchases, loyalty, and website activity contributed to conversion
+  prediction.
+- **Demographics had limited predictive value:** Age, gender, and income
+  were weaker predictors.
+- **XGBoost performed best:** CV ROC AUC = **0.818** and test ROC AUC =
+  **0.844**.
+- **Class imbalance mattered:** About **88%** of customers converted, so
+  accuracy alone was not sufficient.
 
 ## Recommendations for Businesses
 
-- **Focus on customer behavior:** Use engagement and purchase history to support customer targeting.
-- **Consider campaign type:** Conversion-focused campaigns showed stronger conversion results.
-- **Do not rely on channel alone:** Also consider cost, reach, and audience fit.
-- **Use predictive models for targeting:** XGBoost can combine multiple customer and campaign factors.
-- **Evaluate models beyond accuracy:** Consider ROC AUC, sensitivity, and specificity.
+- **Focus on customer behavior:** Use engagement and purchase history to
+  support customer targeting.
+- **Consider campaign type:** Conversion-focused campaigns showed
+  stronger conversion results.
+- **Do not rely on channel alone:** Also consider cost, reach, and
+  audience fit.
+- **Use predictive models for targeting:** XGBoost can combine multiple
+  customer and campaign factors.
+- **Evaluate models beyond accuracy:** Consider ROC AUC, sensitivity,
+  and specificity.
 
 ## Limitations and Directions for Future Research
 
-- **`Conversion` is not clearly defined:** The dataset does not specify what customer action counts as a conversion.
-- **The outcome is imbalanced:** Non-converters were more difficult to identify.
-- **Time and location are not provided:** The dataset does not specify a campaign period or geographic region.
-- **The results are not causal:** The analysis identifies associations and predictive patterns.
-- **The findings come from one dataset:** Future research should test other datasets and customer populations.
-- **Future research should clearly define conversion** and explore ways to improve prediction of non-converters.
-
+- **`Conversion` is not clearly defined:** The dataset does not specify
+  what customer action counts as a conversion.
+- **The outcome is imbalanced:** Non-converters were more difficult to
+  identify.
+- **Time and location are not provided:** The dataset does not specify a
+  campaign period or geographic region.
+- **The results are not causal:** The analysis identifies associations
+  and predictive patterns.
+- **The findings come from one dataset:** Future research should test
+  other datasets and customer populations.
+- **Future research should clearly define conversion** and explore ways
+  to improve prediction of non-converters.
 
 ## Appendix
 
 - **GitHub Repo:** <https://github.com/gracesen/IBM6540-Group3>
-- **Presentation Slides:** <https://gracesen.github.io/IBM6540-Group3/final_report_presentation_2.html>
+- **GitHub Pages:** <https://gracesen.github.io/IBM6540-Group3/>
+- **Presentation Slides:**
+  <https://gracesen.github.io/IBM6540-Group3/final_report_presentation_2.html>
 
 ## Thank You / Q&A
-
